@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مُنشئ صفحة الروابط الذكية - Pro</title>
+    <title>مُنشئ صفحة الروابط الذكية - Pro V2</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -155,7 +155,7 @@
             background: white; padding: 30px; border-radius: var(--border-radius);
             width: 90%; max-width: 450px; text-align: center; animation: slideUp 0.3s ease;
         }
-        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1);} }
         #qrcode-container { margin: 20px auto; display: flex; justify-content: center; }
         
         /* --- Toast Notification --- */
@@ -209,6 +209,7 @@
                             <div class="file-upload-btn" id="upload-btn-text">اختر صورة من جهازك 📁</div>
                             <input type="file" id="profile-avatar-upload" accept="image/*">
                         </div>
+                        <p style="font-size: 12px; color: #888; margin-top: 5px;">* سيتم ضغط الصورة تلقائياً لتحسين سرعة الرابط.</p>
                     </div>
                 </div>
             </details>
@@ -268,7 +269,7 @@
             </div>
             
             <div style="margin-top: 20px; font-size: 12px; color: #888; text-align: center;">
-                * الصور يتم ضغطها تلقائياً لضمان سرعة التحميل.
+                * تم تحسين أداء معالجة الصور بشكل كبير في هذا الإصدار.
             </div>
         </div>
 
@@ -321,7 +322,6 @@
     });
 
     // --- الوظيفة المساعدة: تعقيم النصوص (XSS Protection) ---
-    // هذه أهم دالة للأمان، تمنع حقن الأكواد الخبيثة
     function escapeHtml(text) {
         if (!text) return "";
         return text
@@ -339,6 +339,53 @@
         x.className = "show";
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     }
+
+    // --- الوظيفة المساعدة: ضغط الصورة قبل Base64 ---
+    function compressImageAndConvertToBase64(file, callback) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const MAX_SIZE = 400; // تحديد حجم أقصى بالبكسل
+
+                // تصغير الصورة إذا كانت أكبر من الحجم الأقصى
+                if (width > height) {
+                    if (width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    }
+                } else {
+                    if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // تحويل إلى Base64 مع ضغط الجودة (0.7)
+                const dataURL = canvas.toDataURL('image/jpeg', 0.7); 
+                
+                // التأكد من أن الحجم بعد الضغط لم يتجاوز 100KB (نحو 140,000 حرف Base64)
+                if (dataURL.length > 140000) {
+                     showToast("⚠️ الصورة المضغوطة لا تزال كبيرة جداً. يرجى اختيار صورة أصغر.");
+                     callback(null);
+                     return;
+                }
+                
+                callback(dataURL);
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
 
     function initializeApp() {
         // عناصر DOM
@@ -387,7 +434,7 @@
             'elegant': { bg: '#000000', lBg: '#D4AF37', lTxt: '#000000', txt: '#D4AF37' }
         };
 
-        // أيقونات SVG
+        // أيقونات SVG (كما هي)
         const icons = {
             twitter: '<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
             instagram: '<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.85s.012-3.584.07-4.85c.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a3.999 3.999 0 110-7.998 3.999 3.999 0 010 7.998z"/></svg>',
@@ -461,7 +508,7 @@
             Object.keys(config.socials).forEach(key => {
                 const div = document.createElement('div');
                 div.className = 'form-group';
-                div.innerHTML = `<label style="text-transform:capitalize">${key}</label><input type="text" data-social="${key}" value="${config.socials[key]}" placeholder="${key === 'whatsapp' ? 'مثال: 201xxxxxxx' : 'username / url'}">`;
+                div.innerHTML = `<label style="text-transform:capitalize">${key}</label><input type="text" data-social="${key}" value="${escapeHtml(config.socials[key])}" placeholder="${key === 'whatsapp' ? 'مثال: 201xxxxxxx' : 'username / url'}">`;
                 els.socialsList.appendChild(div);
             });
 
@@ -469,6 +516,7 @@
             renderLinksList();
 
             // الألوان
+            // يجب أن نضمن عدم محاولة استرجاع اللون من gradient إذا كان الثيم يستخدمه
             els.colors.bg.value = config.design.bgColor.startsWith('#') ? config.design.bgColor : '#ffffff';
             els.colors.linkBg.value = config.design.linkBgColor;
             els.colors.linkText.value = config.design.linkTextColor;
@@ -488,8 +536,8 @@
                 div.innerHTML = `
                     <span class="drag-handle">☰</span>
                     <div style="flex:1;">
-                        <input type="text" class="link-title" value="${link.title}" placeholder="العنوان" style="margin-bottom:5px;">
-                        <input type="url" class="link-url" value="${link.url}" placeholder="الرابط (https://...)">
+                        <input type="text" class="link-title" value="${escapeHtml(link.title)}" placeholder="العنوان" style="margin-bottom:5px;">
+                        <input type="url" class="link-url" value="${escapeHtml(link.url)}" placeholder="الرابط (https://...)">
                     </div>
                     <button class="btn btn-danger delete-btn">🗑️</button>
                 `;
@@ -505,21 +553,29 @@
             renderPreview();
         }));
 
-        // 2. رفع الصورة (تحويل لـ Base64 مع ضغط)
+        // 2. رفع الصورة (مع الضغط الجديد)
         els.avatarUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                if (file.size > 500 * 1024) { // 500KB Limit
-                    alert('⚠️ الصورة كبيرة جداً. يرجى اختيار صورة أقل من 500 كيلوبايت لضمان عمل الرابط.');
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    config.profile.avatar = event.target.result;
-                    els.avatarBtnText.textContent = "✅ تم رفع الصورة بنجاح";
-                    renderPreview();
-                };
-                reader.readAsDataURL(file);
+                // رسالة انتظار
+                els.avatarBtnText.textContent = "⏳ جاري ضغط الصورة ومعالجتها...";
+                els.avatarBtnText.style.borderColor = 'orange';
+
+                compressImageAndConvertToBase64(file, (dataURL) => {
+                    if (dataURL) {
+                        config.profile.avatar = dataURL;
+                        els.avatarBtnText.textContent = "✅ تم ضغط ورفع الصورة بنجاح";
+                        els.avatarBtnText.style.borderColor = 'green';
+                        renderPreview();
+                        showToast("تم ضغط الصورة بنجاح!");
+                    } else {
+                        // فشل الضغط (الحجم لا يزال كبير)
+                        config.profile.avatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png'; // العودة لافتراضي
+                        els.avatarBtnText.textContent = "❌ فشل الرفع (الصورة كبيرة جداً)";
+                        els.avatarBtnText.style.borderColor = var('--danger-color');
+                        renderPreview();
+                    }
+                });
             }
         });
 
@@ -538,7 +594,9 @@
         });
 
         els.linksList.addEventListener('input', (e) => {
-            const idx = e.target.closest('.link-item').dataset.id;
+            const itemEl = e.target.closest('.link-item');
+            if (!itemEl) return;
+            const idx = itemEl.dataset.id;
             if(e.target.classList.contains('link-title')) config.links[idx].title = e.target.value;
             if(e.target.classList.contains('link-url')) config.links[idx].url = e.target.value;
             renderPreview();
@@ -560,7 +618,7 @@
             onEnd: function (evt) {
                 const item = config.links.splice(evt.oldIndex, 1)[0];
                 config.links.splice(evt.newIndex, 0, item);
-                syncUI(); // إعادة رسم للتأكد من تطابق الـ Index
+                syncUI(); 
             }
         });
 
@@ -598,6 +656,8 @@
         
         // توليد الرابط مع QR Code
         els.generate.addEventListener('click', () => {
+             showToast("⏳ جاري ضغط البيانات وتوليد الرابط...");
+
             // ضغط البيانات
             const jsonString = JSON.stringify(config);
             const compressed = LZString.compressToEncodedURIComponent(jsonString);
@@ -617,6 +677,7 @@
             });
 
             els.modal.self.style.display = 'flex';
+            showToast("تم توليد الرابط بنجاح! 🎉");
         });
 
         els.modal.copy.addEventListener('click', () => {
@@ -636,7 +697,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `index-${Date.now()}.html`;
+            a.download = `${escapeHtml(config.profile.name)}-links.html`;
             a.click();
             URL.revokeObjectURL(url);
             showToast("جاري تحميل الملف... 📥");
