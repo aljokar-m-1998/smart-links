@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Page Pro Builder</title>
+    <title>مُنشئ صفحة الروابط الاحترافي</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,89 +14,56 @@
     <style>
         /* --- 1. الإعدادات العامة للمحرر (Pro Editor) --- */
         :root {
-            --editor-primary: #5A7FDD;
-            --editor-secondary: #008779;
+            --editor-accent: #007BFF;
             --editor-bg: #F8F9FA;
             --widget-bg: #FFFFFF;
             --text-dark: #212529;
-            --border-light: #E9ECEF;
+            --border-light: #DEE2E6;
             --shadow-subtle: 0 4px 15px rgba(0, 0, 0, 0.05);
             --radius-default: 12px;
             font-family: 'Tajawal', sans-serif;
         }
 
         body {
-            margin: 0;
-            background-color: var(--editor-bg);
-            color: var(--text-dark);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            font-size: 16px;
+            margin: 0; background-color: var(--editor-bg); color: var(--text-dark); display: flex; height: 100vh; overflow: hidden; font-size: 16px;
         }
 
-        #app-container {
-            display: flex;
-            width: 100%;
-            height: 100%;
-        }
+        #app-container { display: flex; width: 100%; height: 100%; }
+        #editor-panel { width: 480px; height: 100%; overflow-y: auto; background-color: var(--widget-bg); padding: 30px; border-left: 1px solid var(--border-light); box-shadow: var(--shadow-subtle); }
+        #preview-panel { flex-grow: 1; display: flex; justify-content: center; align-items: center; background-color: #f0f4f8; padding: 20px; }
 
-        #editor-panel {
-            width: 480px;
-            height: 100%;
-            overflow-y: auto;
-            background-color: var(--widget-bg);
-            padding: 30px;
-            border-left: 1px solid var(--border-light);
-            box-shadow: var(--shadow-subtle);
-        }
-
-        #preview-panel {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f4f8;
-            padding: 20px;
-        }
-
-        /* --- تصميم حقول الإدخال والأزرار --- */
-        .editor-header { color: var(--editor-primary); margin-bottom: 25px; font-size: 28px; font-weight: 900; }
+        .editor-header { color: var(--editor-accent); margin-bottom: 25px; font-size: 28px; font-weight: 900; }
         .editor-section { background: var(--editor-bg); border-radius: var(--radius-default); margin-bottom: 20px; border: 1px solid var(--border-light); overflow: hidden; }
-        .editor-section summary { font-weight: 700; padding: 18px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background-color: #f3f6fb; }
-        .editor-section summary:after { content: '+'; font-size: 1.2em; color: var(--editor-primary); }
+        .editor-section summary { font-weight: 700; padding: 18px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background-color: #F0F4F8; }
+        .editor-section summary:after { content: '+'; font-size: 1.2em; color: var(--editor-accent); }
         .editor-section[open] summary { background-color: var(--widget-bg); }
         .editor-section[open] summary:after { content: '−'; }
         .form-content { padding: 15px; border-top: 1px solid var(--border-light); }
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #6C757D; }
-        input[type="text"], input[type="url"], textarea, select {
-            width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: 8px; background: #fff; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--editor-primary); box-shadow: 0 0 0 3px rgba(90, 127, 221, 0.2); }
+        input[type="text"], input[type="url"], textarea, select { width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: 8px; background: #fff; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--editor-accent); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2); }
         
         .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background-color: var(--editor-primary); color: white; }
-        .btn-primary:hover { background-color: #4869c4; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-        .btn-secondary { background-color: var(--editor-secondary); color: white; }
-        .btn-secondary:hover { background-color: #006a5b; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .btn-primary { background-color: var(--editor-accent); color: white; }
+        .btn-primary:hover { background-color: #0056b3; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .btn-secondary { background-color: #6C757D; color: white; }
+        .btn-secondary:hover { background-color: #5A6268; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         .btn-danger { background: transparent; color: #DC3545; }
         .btn-danger:hover { background-color: rgba(220, 53, 69, 0.1); }
         .btn-full { width: 100%; }
 
-        /* --- تصميم محرر الروابط --- */
+        /* --- تصميم محرر الروابط (Drag & Drop) --- */
         #links-list .link-item {
             background-color: #fff; padding: 15px; border: 1px solid var(--border-light); border-radius: var(--radius-default); margin-bottom: 10px; display: grid; 
-            grid-template-columns: 20px 1fr 100px; align-items: center; gap: 10px; transition: background-color 0.2s, box-shadow 0.2s;
+            grid-template-columns: 20px 1fr auto; align-items: center; gap: 10px; transition: background-color 0.2s, box-shadow 0.2s;
         }
-        #links-list .link-item:hover { box-shadow: var(--shadow-subtle); }
         .drag-handle { cursor: grab; color: #ADB5BD; font-size: 1.2em; }
-        .link-inputs { display: grid; gap: 8px; }
-        .link-inputs input:first-child { margin-bottom: 5px; }
-        .link-actions { display: flex; flex-direction: column; gap: 5px; align-items: center; }
+        .link-inputs { display: grid; gap: 5px; }
+        .link-actions { display: flex; flex-direction: column; gap: 8px; align-items: center; }
         .link-actions label { font-size: 12px; color: #6C757D; display: flex; align-items: center; gap: 5px; cursor: pointer; }
         .link-actions input[type="color"] { width: 30px; height: 30px; border-radius: 6px; padding: 0; }
-        .link-actions input[type="checkbox"] { transform: scale(1.2); }
+        .link-actions input[type="checkbox"] { transform: scale(1.1); }
         
         /* --- تصميم الهاتف في المعاينة --- */
         #preview-frame { width: 380px; height: 780px; background-color: white; border-radius: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); padding: 20px; box-sizing: border-box; overflow: hidden; position: relative; }
@@ -115,13 +82,14 @@
 
         /* تأثير النبض للرابط المميز */
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+            0% { box-shadow: 0 0 0 0 var(--link-color-primary)70; }
+            70% { box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
         }
         .lp-link-button.is-featured {
             animation: pulse 2s infinite;
-            border: 2px solid white; 
+            /* يمكن أن نستخدم لون الخلفية الخاص بالرابط هنا */
+            border: 2px solid var(--link-color-primary); 
         }
 
         .lp-avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px; border: 4px solid rgba(255, 255, 255, 0.8); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
@@ -129,7 +97,7 @@
         .lp-headline { font-size: 16px; font-weight: 700; margin: 0 0 15px; opacity: 0.8; } 
         .lp-bio { font-size: 15px; margin: 0 auto 30px; max-width: 90%; line-height: 1.6; }
         .lp-socials { margin-bottom: 30px; display: flex; justify-content: center; gap: 20px; }
-        .lp-socials a { font-size: 28px; transition: transform 0.2s; }
+        .lp-socials a { font-size: 28px; transition: transform 0.2s; text-decoration: none; }
         .lp-socials a:hover { transform: scale(1.15) translateY(-2px); }
         .lp-link-list { max-width: 500px; margin: 0 auto; }
         .lp-link-button {
@@ -138,32 +106,32 @@
             text-decoration: none; font-weight: 700;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
             transition: all 0.3s;
+            /* استخدام متغيرات CSS لتطبيق ألوان التمرير */
         }
         .lp-link-button:hover { 
             transform: translateY(-2px); 
             box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
             opacity: 0.9;
+            background-color: var(--lp-hover-bg) !important;
+            color: var(--lp-hover-text) !important;
         }
         .lp-link-button .link-icon { font-size: 1.3em; }
 
         /* --- 3. نافذة الرابط المولد والوضع النهائي --- */
-        #modal { /* ... (Same styles as before) ... */ }
-        #render-container { /* ... (Same styles as before) ... */ }
-
-        body.render-mode .profile-container {
-            font-family: 'Tajawal', sans-serif !important;
-            padding: 40px 15px;
-            min-height: 100vh;
-            box-sizing: border-box;
-            background-attachment: fixed; /* لتثبيت الخلفيات المتدرجة */
-        }
+        /* (نفس الستايلات السابقة للنافذة ووضع العرض) */
+        #modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        #modal-content { background: white; padding: 30px; border-radius: var(--radius-default); width: 90%; max-width: 500px; text-align: center; }
+        #generated-link { width: 100%; padding: 10px; border: 1px solid var(--border-light); background: #f1f1f1; border-radius: 8px; margin-bottom: 15px; text-align: right; direction: ltr; }
+        body.render-mode #app-container, body.render-mode #editor-panel, body.render-mode #preview-panel { display: none; }
+        #render-container { display: none; }
+        body.render-mode #render-container { display: block; }
     </style>
 </head>
 <body>
 
     <div id="app-container">
         <div id="editor-panel">
-            <h1 class="editor-header"><i class="fas fa-link"></i> Link Page Pro Builder</h1>
+            <h1 class="editor-header"><i class="fas fa-link"></i> مُنشئ صفحة الروابط</h1>
             
             <details class="editor-section" open>
                 <summary>المعلومات الأساسية</summary>
@@ -200,10 +168,10 @@
                             <option value="sunset-glow">توهج الغروب</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>الألوان المخصصة</label>
+                    <div class="form-group"><label>الألوان المخصصة (الثيم)</label>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <input type="color" id="bg-color" title="لون الخلفية">
-                            <input type="color" id="link-bg-color" title="لون زر الرابط">
+                            <input type="color" id="link-bg-color" title="لون زر الرابط الافتراضي">
                             <input type="color" id="link-text-color" title="لون نص الرابط الافتراضي">
                             <input type="color" id="text-color" title="لون النص الأساسي">
                             <input type="color" id="link-hover-color" title="لون التمرير">
@@ -258,7 +226,6 @@
                 const finalHTML = generateFinalHTML(decodedData, true); 
                 document.getElementById('render-container').innerHTML = finalHTML;
                 document.title = `${decodedData.profile.name} | Link Page`;
-                // إجبار المتصفح على تحميل الـ CSS الجديد
                 document.head.insertAdjacentHTML('beforeend', '<style>body.render-mode { display: block; height: auto; }</style>');
             } catch (error) {
                 console.error("Failed to decode data from URL:", error);
@@ -278,7 +245,6 @@
 
     function initializeApp() {
         const elements = {
-            // ... (نفس العناصر السابقة)
             profileName: document.getElementById('profile-name'),
             profileHeadline: document.getElementById('profile-headline'),
             profileBio: document.getElementById('profile-bio'),
@@ -306,19 +272,19 @@
         const socialPlatforms = Object.keys(socialIcons);
 
         let config = {
-            profile: { name: '@username', headline: 'مرحباً بك في صفحتي!', bio: 'وصف قصير عنك يظهر هنا!', avatar: 'https://via.placeholder.com/110/333333/FFFFFF?text=P', },
+            profile: { name: '@username', headline: 'مرحباً بك في صفحتي!', bio: 'وصف قصير عنك يظهر هنا!', avatar: 'https://via.placeholder.com/110/007BFF/FFFFFF?text=P', },
             socials: { twitter: '', instagram: '', facebook: '', tiktok: '', youtube: '', linkedin: '', github: '' },
             links: [
-                { title: 'الرابط المميز (اضغط للمعاينة)', url: '#', icon: 'fas fa-star', linkColor: '#FFFFFF', linkBgColor: '#5A7FDD', isFeatured: true }
+                { title: 'الرابط المميز (اضغط للمعاينة)', url: '#', icon: 'fas fa-star', linkColor: '#FFFFFF', linkBgColor: '#007BFF', isFeatured: true }
             ],
             design: {
-                theme: 'minimalist-light', bgColor: '#FFFFFF', linkBgColor: '#E9ECEF', linkTextColor: '#212529',
+                theme: 'minimalist-light', bgColor: '#FFFFFF', linkBgColor: '#F0F4F8', linkTextColor: '#212529',
                 textColor: '#212529', linkHoverColor: '#DEE2E6', buttonRadius: '10px', animated: false
             }
         };
         
         const themes = {
-            'minimalist-light': { bgColor: '#FFFFFF', linkBgColor: '#F8F9FA', linkTextColor: '#212529', textColor: '#212529', linkHoverColor: '#E9ECEF', animated: false },
+            'minimalist-light': { bgColor: '#FFFFFF', linkBgColor: '#F0F4F8', linkTextColor: '#212529', textColor: '#212529', linkHoverColor: '#DEE2E6', animated: false },
             'minimalist-dark': { bgColor: '#212529', linkBgColor: '#343A40', linkTextColor: '#F8F9FA', textColor: '#F8F9FA', linkHoverColor: '#495057', animated: false },
             'ocean-animated': { bgColor: 'linear-gradient(225deg, #204066 0%, #4A7A9C 50%, #90D3E8 100%)', linkBgColor: 'rgba(255,255,255,0.9)', linkTextColor: '#204066', textColor: '#FFFFFF', linkHoverColor: 'rgba(255,255,255,1)', animated: true },
             'sunset-glow': { bgColor: 'linear-gradient(90deg, #FF6F61 0%, #FFB6C1 100%)', linkBgColor: 'rgba(255,255,255,0.95)', linkTextColor: '#FF6F61', textColor: '#333333', linkHoverColor: 'rgba(255,255,255,1)', animated: false },
@@ -336,7 +302,7 @@
                 elements.previewContent.classList.add('lp-animated-bg');
             } else {
                 elements.previewContent.classList.remove('lp-animated-bg');
-                elements.previewContent.style.backgroundSize = 'auto'; // مهم لإلغاء تأثير الحركة
+                elements.previewContent.style.backgroundSize = 'auto';
             }
 
             // 2. توليد روابط التواصل الاجتماعي
@@ -354,17 +320,16 @@
                 const linkStyle = `background-color: ${link.linkBgColor || design.linkBgColor}; color: ${link.linkColor || design.linkTextColor}; border-radius: ${design.buttonRadius};`;
                 const featuredClass = link.isFeatured ? 'is-featured' : '';
                 
-                // للتحكم بلون النبض يكون بلون خلفية الرابط المميز
-                const pulseColor = link.linkBgColor || design.linkBgColor;
-                
-                return `<a href="${link.url}" target="_blank" class="lp-link-button ${featuredClass}" style="${linkStyle} --pulse-color: ${pulseColor};">
+                // تمرير لون التمرير ولون النص إلى داتا أتريبيوت
+                return `<a href="${link.url}" target="_blank" class="lp-link-button ${featuredClass}" style="${linkStyle}" 
+                        data-hover-bg="${design.linkHoverColor}" data-hover-text="${link.linkColor || design.linkTextColor}">
                     ${iconHTML}<span>${link.title}</span>
                 </a>`;
             }).join('');
 
             // 4. دمج المحتوى في المعاينة
             elements.previewContent.innerHTML = `
-                <div class="lp-profile-container">
+                <div class="lp-profile-container" style="--link-color-primary: ${design.linkBgColor};">
                     <img src="${profile.avatar}" alt="Avatar" class="lp-avatar">
                     <h2 class="lp-name" style="color: ${design.textColor};">${profile.name}</h2>
                     ${profile.headline ? `<p class="lp-headline" style="color: ${design.textColor};">${profile.headline}</p>` : ''}
@@ -376,14 +341,14 @@
 
         function updateUIFromConfig() {
             const { profile, design } = config;
-            // ... (تحديث الحقول الأساسية)
             elements.profileName.value = profile.name;
             elements.profileHeadline.value = profile.headline;
             elements.profileBio.value = profile.bio;
             elements.profileAvatar.value = profile.avatar; 
             elements.themeSelector.value = design.theme;
-            elements.bgColorPicker.value = (design.bgColor.startsWith('#')) ? design.bgColor : '#ffffff'; 
-            elements.linkBgColorPicker.value = (design.linkBgColor.startsWith('#')) ? design.linkBgColor : '#e9ecef';
+            // يجب تحديث Color Pickers بشكل صحيح لتجنب مشاكل التدرج
+            elements.bgColorPicker.value = design.bgColor.includes('#') ? design.bgColor : '#ffffff';
+            elements.linkBgColorPicker.value = design.linkBgColor.includes('#') ? design.linkBgColor : '#f0f4f8';
             elements.linkTextColorPicker.value = design.linkTextColor;
             elements.textColorPicker.value = design.textColor;
             elements.linkHoverColorPicker.value = design.linkHoverColor;
@@ -395,7 +360,6 @@
 
         function renderSocialLinksEditor() {
             elements.socialLinksList.innerHTML = '';
-            // إضافة حقل إيميل وواتساب وخيارات أخرى
             Object.keys(socialIcons).forEach(platform => {
                 const item = document.createElement('div'); item.className = 'form-group';
                 item.innerHTML = `<label for="social-${platform}"><i class="${socialIcons[platform]}"></i> ${platform.charAt(0).toUpperCase() + platform.slice(1)}</label><input type="text" id="social-${platform}" placeholder="${platform} username or URL" value="${config.socials[platform] || ''}">`;
@@ -409,6 +373,9 @@
             config.links.forEach((link, index) => {
                 const item = document.createElement('div'); item.className = 'link-item'; item.draggable = true; item.dataset.index = index;
                 
+                // استخدام لون الـ Link BG الافتراضي لخانة الـ Link BG Override إذا لم يتم تعيين لون سابقاً
+                const defaultLinkBg = link.linkBgColor || config.design.linkBgColor;
+                
                 item.innerHTML = `
                     <span class="drag-handle"><i class="fas fa-arrows-alt"></i></span>
                     <div class="link-inputs">
@@ -417,8 +384,8 @@
                         <input type="text" class="link-icon" data-index="${index}" placeholder="أيقونة (مثال: fas fa-code)" value="${link.icon || ''}">
                     </div>
                     <div class="link-actions">
-                         <label>لون النص <input type="color" class="link-text-color-override" data-index="${index}" value="${link.linkColor || '#000000'}"></label>
-                         <label>لون الخلفية <input type="color" class="link-bg-color-override" data-index="${index}" value="${link.linkBgColor || config.design.linkBgColor}"></label>
+                         <label>النص <input type="color" class="link-text-color-override" data-index="${index}" value="${link.linkColor || config.design.linkTextColor}"></label>
+                         <label>الخلفية <input type="color" class="link-bg-color-override" data-index="${index}" value="${defaultLinkBg}"></label>
                          <label>مميز <input type="checkbox" class="link-is-featured" data-index="${index}" ${link.isFeatured ? 'checked' : ''}></label>
                          <button class="btn btn-danger delete-link-btn" data-index="${index}"><i class="fas fa-trash"></i></button>
                     </div>`;
@@ -428,8 +395,8 @@
         }
         
         // --- وظائف مساعدة ---
-        function saveConfig() { localStorage.setItem('proLinkConfig_v4', JSON.stringify(config)); }
-        function loadConfig() { const savedConfig = localStorage.getItem('proLinkConfig_v4'); if (savedConfig) { config = JSON.parse(savedConfig); } }
+        function saveConfig() { localStorage.setItem('ultimateLinkConfig_v5', JSON.stringify(config)); }
+        function loadConfig() { const savedConfig = localStorage.getItem('ultimateLinkConfig_v5'); if (savedConfig) { config = JSON.parse(savedConfig); } }
         function saveAndRender() { saveConfig(); renderPreview(); }
         function generateShareableLink() { const dataStr = JSON.stringify(config); const encodedData = btoa(dataStr); const baseURL = window.location.href.split('#')[0]; return `${baseURL}#data=${encodedData}`; }
         
@@ -450,37 +417,37 @@
                 const iconHTML = l.icon ? `<span class="link-icon"><i class="${l.icon}"></i></span>` : '';
                 const linkStyle = `background-color:${l.linkBgColor || design.linkBgColor};color:${l.linkColor || design.linkTextColor};border-radius:${design.buttonRadius};`;
                 const featuredClass = l.isFeatured ? 'is-featured' : '';
-                const hoverBg = l.isFeatured ? 'rgba(255, 255, 255, 0.9)' : design.linkHoverColor;
                 
+                // تمرير الـ Hover Colors كـ data attributes
                 return `<a href="${l.url}" target="_blank" class="lp-link-button ${featuredClass}" 
                         style="${linkStyle}" 
-                        data-hover-bg="${hoverBg}"
-                        data-hover-text="${l.linkColor || design.linkTextColor}"
-                        data-hover-radius="${design.buttonRadius}">
+                        data-hover-bg="${design.linkHoverColor}"
+                        data-hover-text="${l.linkColor || design.linkTextColor}">
                     ${iconHTML}<span>${l.title}</span>
                 </a>`
             }).join('');
             
-            // 3. تحديد ستايل الحركة والـ hover
+            // 3. تحديد ستايل الحركة
             const animatedClass = design.animated ? 'lp-animated-bg' : '';
-            const linkListHoverCSS = `
-                .lp-link-button:hover { 
-                    transform: translateY(-2px); 
-                    box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
-                    opacity: 0.9;
-                    background-color: var(--lp-hover-bg) !important;
-                    color: var(--lp-hover-text) !important;
-                }`;
-                
+            const linkListHoverScript = `
+                    document.addEventListener('mouseover', function(e) {
+                        const target = e.target.closest('.lp-link-button');
+                        if (target) {
+                            target.style.setProperty('--lp-hover-bg', target.dataset.hoverBg);
+                            target.style.setProperty('--lp-hover-text', target.dataset.hoverText);
+                        }
+                    });
+                `;
+            
             // 4. تجميع الـ HTML النهائي
             return `<!DOCTYPE html>
                 <html lang="ar" dir="rtl">
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>${profile.name} | Link Page Pro</title>
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-                    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+                    <title>${profile.name} | Link Page</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+                    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
                     <style>
                         ${isRenderMode ? `
                             @keyframes gradient-animation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -489,7 +456,7 @@
                             .lp-link-button.is-featured { animation: pulse 2s infinite; border: 2px solid ${design.linkTextColor}; }
                         ` : ''}
                         body{margin:0;font-family:'Tajawal', sans-serif;background:${design.bgColor};color:${design.textColor};display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:40px 15px;box-sizing:border-box; ${design.animated ? 'background-attachment: fixed;' : ''}}
-                        .lp-profile-container{width:100%;max-width:680px;text-align:center;word-break: break-word; transition: all 0.3s;}
+                        .lp-profile-container{width:100%;max-width:680px;text-align:center;word-break: break-word;}
                         .lp-avatar{width:110px;height:110px;border-radius:50%;object-fit:cover;margin:0 auto 15px;border:4px solid rgba(255, 255, 255, 0.8);box-shadow:0 6px 12px rgba(0,0,0,0.2);}
                         .lp-name{font-size:26px;font-weight:900;margin:0 0 5px; color: ${design.textColor};}
                         .lp-headline{font-size:16px;font-weight:700;margin:0 0 15px; opacity: 0.8; color: ${design.textColor};}
@@ -500,17 +467,16 @@
                         .lp-link-list{width:100%;}
                         .lp-link-button{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px;margin:0 auto 18px;text-decoration:none;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,0.1);transition:all .3s;}
                         .lp-link-button .link-icon{font-size: 1.3em;}
-                        ${linkListHoverCSS}
+                        .lp-link-button:hover { 
+                            transform: translateY(-2px); 
+                            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+                            opacity: 0.9;
+                            background-color: var(--lp-hover-bg) !important;
+                            color: var(--lp-hover-text) !important;
+                        }
                     </style>
                     <script>
-                        // إضافة تأثير التمرير (Hover) بلون مخصص للتحميل الأسرع
-                        document.addEventListener('mouseover', function(e) {
-                            const target = e.target.closest('.lp-link-button');
-                            if (target) {
-                                target.style.setProperty('--lp-hover-bg', target.dataset.hoverBg);
-                                target.style.setProperty('--lp-hover-text', target.dataset.hoverText);
-                            }
-                        });
+                        ${linkListHoverScript}
                     </script>
                 </head>
                 <body class="${animatedClass}">
@@ -525,8 +491,8 @@
                 </body>
                 </html>`;
         }
-
-        // --- ربط الأحداث (الإدخال) ---
+        
+        // --- Event Listeners (نفس الآلية لضمان الاستقرار) ---
         elements.profileName.addEventListener('input', e => { config.profile.name = e.target.value; saveAndRender(); });
         elements.profileHeadline.addEventListener('input', e => { config.profile.headline = e.target.value; saveAndRender(); });
         elements.profileBio.addEventListener('input', e => { config.profile.bio = e.target.value; saveAndRender(); });
@@ -539,23 +505,13 @@
             }
         });
         
-        // --- إدارة الروابط المخصصة ---
         elements.addLinkBtn.addEventListener('click', () => { 
             config.links.push({ title: 'رابط جديد', url: '#', icon: 'fas fa-link', linkColor: '', linkBgColor: '', isFeatured: false }); 
             renderLinksEditor(); 
             saveAndRender(); 
         });
-        
-        elements.linksList.addEventListener('click', e => { 
-            const deleteBtn = e.target.closest('.delete-link-btn');
-            if (deleteBtn) { 
-                const index = parseInt(deleteBtn.dataset.index);
-                config.links.splice(index, 1);
-                renderLinksEditor();
-                saveAndRender(); 
-            } 
-        });
 
+        // ربط جميع حقول الإدخال في قائمة الروابط
         elements.linksList.addEventListener('input', e => {
             const target = e.target;
             const index = parseInt(target.dataset.index);
@@ -577,7 +533,18 @@
             saveAndRender();
         });
 
-        // --- Drag and Drop Logic (نفس المنطق السابق مع تحديث البيانات) ---
+        // حدث حذف الروابط
+        elements.linksList.addEventListener('click', e => { 
+            const deleteBtn = e.target.closest('.delete-link-btn');
+            if (deleteBtn) { 
+                const index = parseInt(deleteBtn.dataset.index);
+                config.links.splice(index, 1);
+                renderLinksEditor();
+                saveAndRender(); 
+            } 
+        });
+
+        // Drag and Drop Logic (نفس المنطق الثابت)
         let draggedItem = null;
         elements.linksList.addEventListener('dragstart', e => { draggedItem = e.target.closest('.link-item'); setTimeout(() => draggedItem.classList.add('dragging'), 0); });
         elements.linksList.addEventListener('dragend', e => {
@@ -596,7 +563,7 @@
             if (afterElement == null) { e.currentTarget.appendChild(draggedItem); } else { e.currentTarget.insertBefore(draggedItem, afterElement); }
         });
         
-        // --- Design listeners ---
+        // Design listeners
         elements.themeSelector.addEventListener('change', e => {
             const themeName = e.target.value; config.design.theme = themeName;
             if (themes[themeName]) { const theme = themes[themeName]; Object.assign(config.design, theme); updateUIFromConfig(); }
@@ -613,7 +580,7 @@
         });
         elements.buttonStyleSelector.addEventListener('change', e => { config.design.buttonRadius = e.target.value; saveAndRender(); });
 
-        // --- Actions ---
+        // Actions (توليد، تحميل، نسخ)
         elements.generateLinkBtn.addEventListener('click', () => { 
             elements.generatedLinkInput.value = generateShareableLink(); 
             elements.modal.style.display = 'flex'; 
