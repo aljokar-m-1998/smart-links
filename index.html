@@ -356,9 +356,158 @@
     </div>
 
     <script>
+        
+        // --- 1. الأيقونات والخطوط والثيمات (معرفة بشكل عام لتكون متاحة لـ generateFinalHTML) ---
+        
+        const themes = {
+            'light': { bg: '#f7f8fa', lBg: '#ffffff', lTxt: '#1a1a1a', txt: '#1a1a1a', font: 'Cairo' },
+            'dark': { bg: '#121212', lBg: '#2a2a2a', lTxt: '#ffffff', txt: '#ffffff', font: 'Cairo' },
+            'simple-pro': { bg: '#f9f9f9', lBg: '#000000', lTxt: '#ffffff', txt: '#333333', btnRadius: '25px', font: 'Tajawal' },
+            'motion-pro': { bg: 'linear-gradient(180deg, #1e3c72 0%, #2a5298 100%)', lBg: 'rgba(255,255,255,0.95)', lTxt: '#2a5298', txt: '#ffffff', btnRadius: '12px', font: 'Poppins' },
+            'blue': { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', lBg: 'rgba(255,255,255,0.9)', lTxt: '#4a4a4a', txt: '#ffffff', font: 'Cairo' },
+            'pink': { bg: 'linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%)', lBg: '#fff0f3', lTxt: '#d63384', txt: '#4a001f', font: 'Almarai' },
+            'elegant': { bg: '#000000', lBg: '#D4AF37', lTxt: '#000000', txt: '#D4AF37', font: 'Poppins' }
+        };
+
+        const svgs = {
+            twitter: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2 1.3-1.4 1.2-3.3.4-5.1-1.3-3.7-5.8-5.7-9.4-4.5 1.1 2 2 4.4 2.8 6.9 1.1 3.5.5 7.4-1.4 10.3 3.6 1.4 7.4.4 10-2 .6-.6 1.1-1.2 1.5-1.9.9.5 2 1 3.2 1.4C17.6 19.3 20 18 22 17"/></svg>',
+            instagram: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
+            facebook: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z"/></svg>',
+            linkedin: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 8a6 6 0 0 0-6 6v7h-4v-7a6 6 0 0 0-6-6 6 6 0 0 0 6 6v7h4v-7a6 6 0 0 0 6-6zM4 2h4v4H4z"/></svg>',
+            whatsapp: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.625 15.011l-.81 3.51a1 1 0 0 0 1.258 1.258l3.51-.81A9.957 9.957 0 0 0 12 22a10 10 0 0 0 0-20zm-1.87 14.896c-.3-.15-.88-.43-1.02-.48a1 1 0 0 1-.58-.33c-.2-.23-.74-.89-.98-1.07a.999.999 0 0 1-.37-.58c-.1-.28 0-.58.17-.85s.58-.85.83-1.09c.25-.24.49-.3.68-.3s.4-.04.61.42c.2.46.39 1.09.43 1.19s.08.2.03.42c-.05.2-.26.24-.51.48s-.54.49-.75.72c-.2.23-.42.45-.64.67-.17.16-.35.33-.52.48a.999.999 0 0 0-.25.59c.02.19.14.3.29.45.15.15.36.35.54.51.18.17.37.33.58.49.23.18.47.36.71.55.24.19.49.38.75.56.26.18.52.36.78.53.25.17.51.34.77.5.25.17.51.32.77.47.26.15.52.3.78.44.25.14.5.27.75.39.25.12.5.24.75.36.25.12.49.23.74.34.25.1.49.19.74.28.25.09.49.17.74.25.25.08.49.16.74.24.25.07.49.14.74.2c.25.07.49.13.74.19.24.06.49.11.74.16.24.05.49.09.74.14.24.05.49.09.74.12.24.03.49.06.74.09.24.03.49.05.74.07.24.02.49.03.74.04.24.01.49.01.74.02.24 0 .49 0 .74 0h.22c.55 0 1-.45 1-1v-.22c0-.55-.45-1-1-1H12.7c-.52 0-.82-.24-1.14-.54-.32-.3-.68-.62-1.04-.98-.36-.36-.72-.72-1.04-1.04-.3-.32-.54-.62-.54-1.14z"/></svg>',
+        };
+        
+        // --- الدوال المساعدة (Helper Functions) ---
+
+        // الوظيفة المساعدة: تعقيم النصوص (XSS Protection)
+        function escapeHtml(text) {
+            if (text === undefined || text === null) return "";
+            const str = String(text); 
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // الوظيفة المساعدة: عرض التنبيهات (Toast)
+        function showToast(message) {
+            const x = document.getElementById("toast");
+            x.textContent = message;
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+        
+        // الوظيفة المساعدة: إيقاف التكرار (Debounce)
+        function debounce(func, timeout = 300) {
+          let timer;
+          return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+          };
+        }
+        
+        // --- وظيفة توليد كود الصفحة النهائية (Standalone) ---
+        function generateFinalHTML(data) {
+            const safeName = escapeHtml(data.profile.name);
+            const safeBio = escapeHtml(data.profile.bio);
+            const safeAvatar = escapeHtml(data.profile.avatar);
+            const theme = data.design.theme;
+            const lang = data.lang;
+            const fontName = themes[theme]?.font || 'Cairo'; 
+            
+            let socialHTML = '';
+            for (const [key, val] of Object.entries(data.socials)) {
+                if (val && svgs[key]) {
+                     let href = val;
+                    if (key === 'whatsapp' && !val.startsWith('http')) href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
+                    else if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
+                    socialHTML += `<a href="${escapeHtml(href)}" target="_blank" class="social-icon">${svgs[key]}</a>`;
+                }
+            }
+            
+            // إخفاء الصورة في Simple Pro أو إذا طلب المستخدم إخفاءها
+            const avatarDisplay = (theme === 'simple-pro' || data.profile.hideName) ? 'display: none;' : '';
+            const avatarMargin = (theme === 'simple-pro' || data.profile.hideName) ? '' : `<img src="${safeAvatar}" alt="${safeName}" class="avatar">`;
+
+            let nameHTML = data.profile.hideName ? '' : `<h1 class="name">${safeName}</h1>`;
+            let bioHTML = data.profile.hideBio ? '' : `<p class="bio">${safeBio}</p>`;
+
+            let linksHTML = data.links.map(link => {
+                 let linkBg = data.design.linkBgColor;
+                 let linkTxt = data.design.linkTextColor;
+                 let borderStyle = '';
+                 let extraClass = '';
+                 
+                 if (link.highlight) {
+                     // عكس الألوان إذا كان الرابط رئيسياً
+                     linkBg = data.design.textColor;
+                     linkTxt = data.design.linkBgColor;
+                     borderStyle += `border: 3px solid ${data.design.textColor};`;
+                     extraClass += ' highlight-btn';
+                 } else if (data.design.btnRadius === 'neubrutalism') {
+                        borderStyle += `border: 2px solid ${data.design.textColor}; box-shadow: 4px 4px 0 ${data.design.textColor}; border-radius: 0;`;
+                 } else {
+                        borderStyle += `border-radius: ${data.design.btnRadius}; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none;`;
+                 }
+                
+                return `<a href="${escapeHtml(link.url)}" target="_blank" class="link-btn${extraClass}" style="background-color:${linkBg}; color:${linkTxt}; ${borderStyle}">${escapeHtml(link.title)}</a>`;
+            }).join('');
+            
+            // إضافة CSS خاص بالـ Motion Pro
+            let motionProCSS = '';
+            if (theme === 'motion-pro') {
+                motionProCSS = `
+                    .link-btn { transition: transform 0.3s, filter 0.3s, box-shadow 0.3s; }
+                    .link-btn:hover {
+                        transform: translateY(-5px) scale(1.02);
+                        filter: brightness(1.1);
+                        box-shadow: 0 8px 15px rgba(0,0,0,0.2) !important;
+                    }
+                    .social-icon:hover {
+                        transform: scale(1.3) rotate(5deg);
+                    }
+                `;
+            }
+            
+            return `<!DOCTYPE html>
+<html lang="${lang}" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${safeName} | Links</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Poppins:wght@400;700;900&family=${fontName.replace(' ', '+')}:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+    body { font-family: '${fontName}', sans-serif; margin: 0; padding: 40px 20px; min-height: 100vh; background: ${data.design.bgColor}; color: ${data.design.textColor}; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+    .container { width: 100%; max-width: 600px; text-align: center; }
+    .avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 15px; ${avatarDisplay} }
+    .name { font-size: 26px; font-weight: 900; margin: 0 0 10px; }
+    .bio { font-size: 16px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6; }
+    .socials { display: flex; justify-content: center; gap: 18px; margin-bottom: 30px; color: inherit; }
+    .social-icon { color: inherit; transition: transform 0.3s ease; display: inline-block; }
+    .social-icon svg { width: 24px; height: 24px; vertical-align: middle; }
+    .social-icon:hover { transform: scale(1.15); }
+    .link-btn { display: block; width: 100%; padding: 18px; margin-bottom: 15px; text-decoration: none; font-weight: 700; font-size: 18px; box-sizing: border-box; transition: filter 0.3s; }
+    .link-btn:hover { filter: brightness(0.95); }
+    ${motionProCSS}
+</style>
+</head>
+<body>
+    <div class="container">
+        ${avatarMargin}
+        ${nameHTML}
+        ${bioHTML}
+        <div class="socials">${socialHTML}</div>
+        <div class="links">${linksHTML}</div>
+    </div>
+</body>
+</html>`;
+        }
+
     document.addEventListener('DOMContentLoaded', () => {
 
-        // --- 1. التحقق من الرابط: هل نحن في وضع التعديل أم العرض؟ ---
+        // --- 2. التحقق من الرابط: هل نحن في وضع التعديل أم العرض؟ ---
         if (window.location.hash && window.location.hash.startsWith('#data=')) {
             try {
                 const encodedData = window.location.hash.substring(6);
@@ -381,38 +530,7 @@
         }
 
     });
-
-    // --- الوظيفة المساعدة: تعقيم النصوص (XSS Protection) ---
-    function escapeHtml(text) {
-        if (text === undefined || text === null) return "";
-        // التأكد من أن النص سلسلة قبل استخدام replace
-        const str = String(text); 
-        return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    // --- الوظيفة المساعدة: عرض التنبيهات (Toast) ---
-    function showToast(message) {
-        const x = document.getElementById("toast");
-        x.textContent = message;
-        x.className = "show";
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-    }
-    
-    // --- الوظيفة المساعدة: إيقاف التكرار (Debounce) ---
-    function debounce(func, timeout = 300) {
-      let timer;
-      return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => { func.apply(this, args); }, timeout);
-      };
-    }
-
-
+        
     function initializeApp() {
         // عناصر DOM
         const els = {
@@ -423,7 +541,7 @@
             avatarUpload: document.getElementById('profile-avatar-upload'),
             avatarUrlInput: document.getElementById('profile-avatar-url'), 
             avatarBtnText: document.getElementById('upload-btn-text'),
-            deleteAvatarBtn: document.getElementById('delete-avatar-btn'), // <--- جديد
+            deleteAvatarBtn: document.getElementById('delete-avatar-btn'), 
             linksList: document.getElementById('links-list'),
             socialsList: document.getElementById('social-links-list'),
             preview: document.getElementById('preview-content'),
@@ -439,9 +557,9 @@
             generate: document.getElementById('generate-link-btn'),
             shorten: document.getElementById('shorten-btn'), 
             download: document.getElementById('download-html-btn'),
-            copyHtml: document.getElementById('copy-html-btn'), // <--- جديد
-            savedStatus: document.getElementById('saved-status'), // <--- جديد
-            langToggleBtn: document.getElementById('lang-toggle-btn'), // <--- جديد
+            copyHtml: document.getElementById('copy-html-btn'), 
+            savedStatus: document.getElementById('saved-status'), 
+            langToggleBtn: document.getElementById('lang-toggle-btn'), 
             modal: {
                 self: document.getElementById('modal'),
                 input: document.getElementById('generated-link'),
@@ -475,29 +593,18 @@
                 name: DEFAULTS.name_ar, 
                 bio: DEFAULTS.bio_ar, 
                 avatar: DEFAULTS.avatar,
-                hideName: false, // <--- جديد
-                hideBio: false,  // <--- جديد
+                hideName: false, 
+                hideBio: false,  
             },
             socials: { twitter: '', instagram: '', facebook: '', linkedin: '', whatsapp: '' },
-            links: [ { title: DEFAULTS.linkTitle_ar, url: 'https://google.com', highlight: false } ], // <--- جديد
+            links: [ { title: DEFAULTS.linkTitle_ar, url: 'https://google.com', highlight: false } ], 
             design: { theme: 'light', bgColor: '#f7f8fa', linkBgColor: '#ffffff', linkTextColor: '#1a1a1a', textColor: '#1a1a1a', btnRadius: '8px' },
-            lang: 'ar' // <--- جديد
+            lang: 'ar' 
         };
         
         // التحميل من التخزين المحلي
         loadConfig();
         
-        // الثيمات الجديدة والمحدثة
-        const themes = {
-            'light': { bg: '#f7f8fa', lBg: '#ffffff', lTxt: '#1a1a1a', txt: '#1a1a1a', font: 'Cairo' },
-            'dark': { bg: '#121212', lBg: '#2a2a2a', lTxt: '#ffffff', txt: '#ffffff', font: 'Cairo' },
-            'simple-pro': { bg: '#f9f9f9', lBg: '#000000', lTxt: '#ffffff', txt: '#333333', btnRadius: '25px', font: 'Tajawal' },
-            'motion-pro': { bg: 'linear-gradient(180deg, #1e3c72 0%, #2a5298 100%)', lBg: 'rgba(255,255,255,0.95)', lTxt: '#2a5298', txt: '#ffffff', btnRadius: '12px', font: 'Poppins' },
-            'blue': { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', lBg: 'rgba(255,255,255,0.9)', lTxt: '#4a4a4a', txt: '#ffffff', font: 'Cairo' },
-            'pink': { bg: 'linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%)', lBg: '#fff0f3', lTxt: '#d63384', txt: '#4a001f', font: 'Almarai' },
-            'elegant': { bg: '#000000', lBg: '#D4AF37', lTxt: '#000000', txt: '#D4AF37', font: 'Poppins' }
-        };
-
         // قاموس الترجمة
         const translations = {
             ar: { 
@@ -622,11 +729,6 @@
             }
         };
 
-        // أيقونات SVG (كما هي)
-        const icons = { /* ... (Icons object remains unchanged) ... */ };
-        // (Icons object is too long to include here, assumed to be the same as input)
-        // ...
-
         // --- وظائف الحفظ والترجمة (الجديد) ---
         
         const saveConfigDebounced = debounce(saveConfig);
@@ -702,7 +804,7 @@
             const isSimplePro = config.design.theme === 'simple-pro';
             
             const avatarHtml = (isSimplePro || config.profile.hideName) 
-                ? '' // لا صورة في قالب Simple Pro أو إذا كان الاسم مخفياً (لتبسيط التصميم)
+                ? '' 
                 : `<img src="${escapeHtml(config.profile.avatar)}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid #fff; box-shadow:0 5px 15px rgba(0,0,0,0.1); margin-bottom:10px;">`;
 
             // بناء المحتوى (باستخدام escapeHtml لمنع XSS)
@@ -718,8 +820,20 @@
             }
 
 
-            // 2. التواصل الاجتماعي
-            // ... (Socials HTML generation remains the same) ...
+            // 2. التواصل الاجتماعي (نحتاج لنسخة من SVGs هنا أو استخدامها مباشرة)
+            let socialPreviewHTML = '';
+            socialPreviewHTML += '<div style="display:flex; justify-content:center; gap:15px; margin-bottom:30px;">';
+            for (const [key, val] of Object.entries(config.socials)) {
+                if (val && svgs[key]) {
+                    let href = val;
+                    if (key === 'whatsapp' && !val.startsWith('http')) href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
+                    else if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
+                    socialPreviewHTML += `<a href="${escapeHtml(href)}" target="_blank" style="color:inherit; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${svgs[key]}</a>`;
+                }
+            }
+            socialPreviewHTML += '</div>';
+            html += socialPreviewHTML;
+
 
             // 3. الأزرار
             html += '<div style="display:flex; flex-direction:column; gap:15px;">';
@@ -738,7 +852,7 @@
                 
                 // إضافة تأثير بسيط للمعانية لـ Motion Pro
                 if (config.design.theme === 'motion-pro') {
-                    extraStyles += 'transform: scale(0.98); opacity: 0.9;';
+                    extraStyles += 'filter: brightness(0.98);'; // لعمل تأثير مرئي خفيف
                 }
 
                 html += `
@@ -787,7 +901,7 @@
             Object.keys(config.socials).forEach(key => {
                 const div = document.createElement('div');
                 div.className = 'form-group';
-                div.innerHTML = `<label style="text-transform:capitalize">${key}</label><input type="text" data-social="${key}" value="${config.socials[key]}" placeholder="${key === 'whatsapp' ? 'ex: 201xxxxxxx' : 'username / url'}">`;
+                div.innerHTML = `<label style="text-transform:capitalize">${key}</label><input type="text" data-social="${key}" value="${escapeHtml(config.socials[key])}" placeholder="${key === 'whatsapp' ? 'ex: 201xxxxxxx' : 'username / url'}">`;
                 els.socialsList.appendChild(div);
             });
 
@@ -1086,106 +1200,6 @@
         // بدء التطبيق
         setLanguage(config.lang);
         syncUI();
-    }
-
-    // --- توليد كود الصفحة النهائية (Standalone) ---
-    function generateFinalHTML(data) {
-        const safeName = escapeHtml(data.profile.name);
-        const safeBio = escapeHtml(data.profile.bio);
-        const safeAvatar = escapeHtml(data.profile.avatar);
-        const theme = data.design.theme;
-        const lang = data.lang;
-        const fontName = themes[theme]?.font || 'Cairo'; // استخدام خط الثيم
-
-        // أيقونات للتصدير (مضمنة داخل الدالة لتكون مستقلة)
-        const svgs = { /* ... (Icons object remains unchanged) ... */ }; 
-
-        let socialHTML = '';
-        for (const [key, val] of Object.entries(data.socials)) {
-            if (val && svgs[key]) {
-                 let href = val;
-                if (key === 'whatsapp' && !val.startsWith('http')) href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-                else if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
-                socialHTML += `<a href="${escapeHtml(href)}" target="_blank" class="social-icon">${svgs[key]}</a>`;
-            }
-        }
-        
-        // إخفاء الصورة في Simple Pro أو إذا طلب المستخدم إخفاءها
-        const avatarDisplay = (theme === 'simple-pro' || data.profile.hideName) ? 'display: none;' : '';
-        const avatarMargin = (theme === 'simple-pro' || data.profile.hideName) ? '' : `<img src="${safeAvatar}" alt="${safeName}" class="avatar">`;
-
-        let nameHTML = data.profile.hideName ? '' : `<h1 class="name">${safeName}</h1>`;
-        let bioHTML = data.profile.hideBio ? '' : `<p class="bio">${safeBio}</p>`;
-
-        let linksHTML = data.links.map(link => {
-             let linkBg = data.design.linkBgColor;
-             let linkTxt = data.design.linkTextColor;
-             let borderStyle = '';
-             let extraClass = '';
-             
-             if (link.highlight) {
-                 // عكس الألوان إذا كان الرابط رئيسياً
-                 linkBg = data.design.textColor;
-                 linkTxt = data.design.linkBgColor;
-                 borderStyle += `border: 3px solid ${data.design.textColor};`;
-                 extraClass += ' highlight-btn';
-             } else if (data.design.btnRadius === 'neubrutalism') {
-                    borderStyle += `border: 2px solid ${data.design.textColor}; box-shadow: 4px 4px 0 ${data.design.textColor}; border-radius: 0;`;
-             } else {
-                    borderStyle += `border-radius: ${data.design.btnRadius}; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none;`;
-             }
-            
-            return `<a href="${escapeHtml(link.url)}" target="_blank" class="link-btn${extraClass}" style="background-color:${linkBg}; color:${linkTxt}; ${borderStyle}">${escapeHtml(link.title)}</a>`;
-        }).join('');
-        
-        // إضافة CSS خاص بالـ Motion Pro
-        let motionProCSS = '';
-        if (theme === 'motion-pro') {
-            motionProCSS = `
-                .link-btn { transition: transform 0.3s, filter 0.3s, box-shadow 0.3s; }
-                .link-btn:hover {
-                    transform: translateY(-5px) scale(1.02);
-                    filter: brightness(1.1);
-                    box-shadow: 0 8px 15px rgba(0,0,0,0.2) !important;
-                }
-                .social-icon:hover {
-                    transform: scale(1.3) rotate(5deg);
-                }
-            `;
-        }
-        
-
-        return `<!DOCTYPE html>
-<html lang="${lang}" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${safeName} | Links</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Poppins:wght@400;700;900&family=${fontName.replace(' ', '+')}:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-    body { font-family: '${fontName}', sans-serif; margin: 0; padding: 40px 20px; min-height: 100vh; background: ${data.design.bgColor}; color: ${data.design.textColor}; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-    .container { width: 100%; max-width: 600px; text-align: center; }
-    .avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 15px; ${avatarDisplay} }
-    .name { font-size: 26px; font-weight: 900; margin: 0 0 10px; }
-    .bio { font-size: 16px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6; }
-    .socials { display: flex; justify-content: center; gap: 18px; margin-bottom: 30px; color: inherit; }
-    .social-icon { color: inherit; transition: transform 0.3s ease; display: inline-block; }
-    .social-icon:hover { transform: scale(1.15); }
-    .link-btn { display: block; width: 100%; padding: 18px; margin-bottom: 15px; text-decoration: none; font-weight: 700; font-size: 18px; box-sizing: border-box; transition: filter 0.3s; }
-    .link-btn:hover { filter: brightness(0.95); }
-    ${motionProCSS}
-</style>
-</head>
-<body>
-    <div class="container">
-        ${avatarMargin}
-        ${nameHTML}
-        ${bioHTML}
-        <div class="socials">${socialHTML}</div>
-        <div class="links">${linksHTML}</div>
-    </div>
-</body>
-</html>`;
     }
     </script>
 </body>
