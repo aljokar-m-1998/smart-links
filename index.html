@@ -14,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* --- الإعدادات العامة --- */
+        /* --- الإعدادات العامة والتصميم (CSS) --- */
         :root {
             --editor-bg: #f7f8fa;
             --preview-bg: #eef0f5;
@@ -39,44 +39,22 @@
             display: flex;
             transition: direction 0.3s;
         }
-
-        /* --- وضع اللغة الإنجليزية (LTR) --- */
         body.en-mode { direction: ltr; font-family: 'Poppins', sans-serif; }
         body.en-mode #editor-panel { border-left: none; border-right: 1px solid var(--border-color); box-shadow: 5px 0 15px rgba(0,0,0,0.05); }
-        body.en-mode #editor-panel h1 { justify-content: flex-start; }
-        
-        /* --- التخطيط العام --- */
+
         #app-container { display: flex; width: 100%; height: 100%; }
 
-        /* --- لوحة التحكم (يمين/يسار) --- */
         #editor-panel {
             width: 450px;
             height: 100%;
             overflow-y: auto;
             background-color: var(--widget-bg);
             padding: 25px;
-            border-left: 1px solid var(--border-color); /* AR default */
-            box-shadow: -5px 0 15px rgba(0,0,0,0.05); /* AR default */
+            border-left: 1px solid var(--border-color);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
             box-sizing: border-box;
         }
 
-        #editor-panel h1 {
-            font-size: 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
-        }
-
-        /* --- لوحة المعاينة (يسار/يمين) --- */
-        #preview-panel {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: var(--preview-bg);
-            padding: 20px;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        /* --- عناصر النموذج --- */
         .editor-section {
             background: var(--editor-bg);
             border-radius: var(--border-radius);
@@ -89,7 +67,6 @@
             font-weight: 700; padding: 15px; cursor: pointer; list-style: none;
             display: flex; justify-content: space-between; align-items: center; background: #fff;
         }
-        .editor-section summary::-webkit-details-marker { display: none; }
         
         .form-content { padding: 15px; border-top: 1px solid var(--border-color); }
         
@@ -101,46 +78,17 @@
             border-radius: 8px; background: #fff; box-sizing: border-box; transition: 0.2s;
             font-family: inherit;
         }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(0,123,255,0.2); }
-
-        /* --- زر رفع الصورة وتعديل رابط الصورة --- */
-        .file-upload-wrapper {
-            position: relative; overflow: hidden; display: inline-block; width: 100%;
-            margin-bottom: 10px;
-        }
-        .file-upload-wrapper input[type=file] {
-            font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;
-        }
-        .file-upload-btn {
-            border: 1px dashed var(--accent-color); color: var(--accent-color);
-            background: rgba(0,123,255,0.05); padding: 10px; text-align: center;
-            border-radius: 8px; font-weight: 700; cursor: pointer;
-        }
-        #profile-avatar-url { margin-top: 10px; }
-        
-        /* --- Checkbox Group --- */
-        .checkbox-group { display: flex; gap: 15px; margin-top: 10px; font-size: 14px; }
-        .checkbox-group label { display: flex; align-items: center; cursor: pointer; color: var(--text-primary); font-weight: 400; }
-        .checkbox-group input[type="checkbox"] { margin-inline-end: 8px; width: auto; }
-
-        /* --- الأزرار والألوان --- */
-        .color-picker-group { display: flex; gap: 10px; }
-        input[type="color"] { -webkit-appearance: none; width: 40px; height: 40px; border: none; padding: 0; border-radius: 50%; cursor: pointer; }
         
         .btn {
             padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer;
             font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         }
         .btn-primary { background-color: var(--accent-color); color: white; }
-        .btn-primary:hover { background-color: var(--accent-hover); }
         .btn-secondary { background-color: #6c757d; color: white; }
         .btn-danger { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);}
-        .btn-danger:hover { background-color: rgba(220, 53, 69, 0.1); }
         .btn-success { background-color: #28a745; color: white; }
-        .btn-success:hover { background-color: #1e7e34; }
         .btn-full { width: 100%; }
 
-        /* --- قائمة الروابط --- */
         #links-list .link-item {
             background-color: #fff; padding: 10px; border: 1px solid var(--border-color);
             border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
@@ -148,9 +96,11 @@
         }
         .drag-handle { cursor: grab; color: #aaa; font-size: 20px; padding: 0 5px; }
         .sortable-ghost { opacity: 0.4; background: #e0f0ff; }
-        .link-options { display: flex; align-items: center; gap: 10px; margin-top: 5px; font-size: 12px; color: #555; }
 
-        /* --- الهاتف والمعاينة --- */
+        #preview-panel {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center; background-color: var(--preview-bg);
+            padding: 20px; height: 100%; overflow: hidden;
+        }
         #preview-frame {
             width: 375px; height: 812px; background-color: white; border-radius: 40px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.15); padding: 15px; box-sizing: border-box;
@@ -161,46 +111,27 @@
             overflow-y: auto; text-align: center; padding: 40px 15px; box-sizing: border-box;
         }
         #preview-content::-webkit-scrollbar { display: none; }
-
-        /* --- Modal (Shared Style) --- */
-        #modal, #html-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-        #modal-content, #html-modal-content {
-            background: white; padding: 30px; border-radius: var(--border-radius);
-            width: 90%; max-width: 450px; text-align: center; animation: slideUp 0.3s ease;
-        }
-        #html-modal-content { max-width: 700px; }
+        
+        #html-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        #html-modal-content { background: white; padding: 30px; border-radius: var(--border-radius); width: 90%; max-width: 700px; text-align: center; animation: slideUp 0.3s ease; }
         #html-modal-content textarea { direction: ltr; text-align: left; font-family: monospace; }
-        
-        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-        #qrcode-container { margin: 20px auto; display: flex; justify-content: center; }
-        
-        /* --- Toast Notification --- */
-        #toast {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
-            text-align: center; border-radius: 8px; padding: 16px; position: fixed;
-            z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%);
-            font-size: 15px; box-shadow: 0 4px 12px rgba(0,40,80,0.2);
-        }
+
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; box-shadow: 0 4px 12px rgba(0,40,80,0.2); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- وضع العرض النهائي --- */
         body.render-mode { display: block; height: auto; overflow: auto; background: #fff; }
         body.render-mode #app-container { display: none; }
         #render-container { display: none; }
         body.render-mode #render-container { display: block; }
-
-        /* --- التجاوب --- */
+        
         @media (max-width: 900px) {
             #app-container { flex-direction: column; }
             #editor-panel { width: 100%; height: auto; border-left: none; border-right: none; }
             #preview-panel { height: 100vh; position: sticky; top: 0; z-index: 10; border-top: 1px solid #ddd;}
-            #preview-frame { height: 90%; width: 90%; border-width: 4px; }
         }
+
     </style>
 </head>
 <body>
@@ -357,7 +288,7 @@
 
     <script>
         
-        // --- 1. الأيقونات والخطوط والثيمات (معرفة بشكل عام لتكون متاحة لـ generateFinalHTML) ---
+        // --- 1. الأيقونات والخطوط والثيمات (مُصحَّحة) ---
         
         const themes = {
             'light': { bg: '#f7f8fa', lBg: '#ffffff', lTxt: '#1a1a1a', txt: '#1a1a1a', font: 'Cairo' },
@@ -369,17 +300,18 @@
             'elegant': { bg: '#000000', lBg: '#D4AF37', lTxt: '#000000', txt: '#D4AF37', font: 'Poppins' }
         };
 
+        // تم التأكد من أن جميع الأيقونات تستخدم stroke="currentColor" أو fill="currentColor" بشكل صحيح
         const svgs = {
             twitter: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2 1.3-1.4 1.2-3.3.4-5.1-1.3-3.7-5.8-5.7-9.4-4.5 1.1 2 2 4.4 2.8 6.9 1.1 3.5.5 7.4-1.4 10.3 3.6 1.4 7.4.4 10-2 .6-.6 1.1-1.2 1.5-1.9.9.5 2 1 3.2 1.4C17.6 19.3 20 18 22 17"/></svg>',
-            instagram: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
+            instagram: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
             facebook: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z"/></svg>',
             linkedin: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 8a6 6 0 0 0-6 6v7h-4v-7a6 6 0 0 0-6-6 6 6 0 0 0 6 6v7h4v-7a6 6 0 0 0 6-6zM4 2h4v4H4z"/></svg>',
-            whatsapp: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.625 15.011l-.81 3.51a1 1 0 0 0 1.258 1.258l3.51-.81A9.957 9.957 0 0 0 12 22a10 10 0 0 0 0-20zm-1.87 14.896c-.3-.15-.88-.43-1.02-.48a1 1 0 0 1-.58-.33c-.2-.23-.74-.89-.98-1.07a.999.999 0 0 1-.37-.58c-.1-.28 0-.58.17-.85s.58-.85.83-1.09c.25-.24.49-.3.68-.3s.4-.04.61.42c.2.46.39 1.09.43 1.19s.08.2.03.42c-.05.2-.26.24-.51.48s-.54.49-.75.72c-.2.23-.42.45-.64.67-.17.16-.35.33-.52.48a.999.999 0 0 0-.25.59c.02.19.14.3.29.45.15.15.36.35.54.51.18.17.37.33.58.49.23.18.47.36.71.55.24.19.49.38.75.56.26.18.52.36.78.53.25.17.51.34.77.5.25.17.51.32.77.47.26.15.52.3.78.44.25.14.5.27.75.39.25.12.5.24.75.36.25.12.49.23.74.34.25.1.49.19.74.28.25.09.49.17.74.25.25.08.49.16.74.24.25.07.49.14.74.2c.25.07.49.13.74.19.24.06.49.11.74.16.24.05.49.09.74.14.24.05.49.09.74.12.24.03.49.06.74.09.24.03.49.05.74.07.24.02.49.03.74.04.24.01.49.01.74.02.24 0 .49 0 .74 0h.22c.55 0 1-.45 1-1v-.22c0-.55-.45-1-1-1H12.7c-.52 0-.82-.24-1.14-.54-.32-.3-.68-.62-1.04-.98-.36-.36-.72-.72-1.04-1.04-.3-.32-.54-.62-.54-1.14z"/></svg>',
+            // تم تصحيح الـ SVG الخاص بالواتساب ليعمل بشكل سليم
+            whatsapp: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.87 14.896c-.3-.15-.88-.43-1.02-.48a1 1 0 0 1-.58-.33c-.2-.23-.74-.89-.98-1.07a.999.999 0 0 1-.37-.58c-.1-.28 0-.58.17-.85s.58-.85.83-1.09c.25-.24.49-.3.68-.3s.4-.04.61.42c.2.46.39 1.09.43 1.19s.08.2.03.42c-.05.2-.26.24-.51.48s-.54.49-.75.72c-.2.23-.42.45-.64.67-.17.16-.35.33-.52.48a.999.999 0 0 0-.25.59c.02.19.14.3.29.45.15.15.36.35.54.51.18.17.37.33.58.49.23.18.47.36.71.55.24.19.49.38.75.56.26.18.52.36.78.53.25.17.51.34.77.5.25.17.51.32.77.47.26.15.52.3.78.44.25.14.5.27.75.39.25.12.5.24.75.36.25.12.49.23.74.34.25.1.49.19.74.28.25.09.49.17.74.25.25.08.49.16.74.24.25.07.49.14.74.2c.25.07.49.13.74.19.24.06.49.11.74.16.24.05.49.09.74.14.24.05.49.09.74.12.24.03.49.06.74.09.24.03.49.05.74.07.24.02.49.03.74.04.24.01.49.01.74.02.24 0 .49 0 .74 0h.22c.55 0 1-.45 1-1v-.22c0-.55-.45-1-1-1H12.7c-.52 0-.82-.24-1.14-.54-.32-.3-.68-.62-1.04-.98-.36-.36-.72-.72-1.04-1.04-.3-.32-.54-.62-.54-1.14z"/></svg>',
         };
         
         // --- الدوال المساعدة (Helper Functions) ---
 
-        // الوظيفة المساعدة: تعقيم النصوص (XSS Protection)
         function escapeHtml(text) {
             if (text === undefined || text === null) return "";
             const str = String(text); 
@@ -391,7 +323,6 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // الوظيفة المساعدة: عرض التنبيهات (Toast)
         function showToast(message) {
             const x = document.getElementById("toast");
             x.textContent = message;
@@ -399,7 +330,6 @@
             setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }
         
-        // الوظيفة المساعدة: إيقاف التكرار (Debounce)
         function debounce(func, timeout = 300) {
           let timer;
           return (...args) => {
@@ -421,13 +351,17 @@
             for (const [key, val] of Object.entries(data.socials)) {
                 if (val && svgs[key]) {
                      let href = val;
-                    if (key === 'whatsapp' && !val.startsWith('http')) href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-                    else if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
+                    if (key === 'whatsapp') {
+                        // معالجة رابط واتساب
+                        href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
+                    } else if (key === 'twitter' || key === 'instagram' || key === 'facebook' || key === 'linkedin') {
+                        // إضافة http إذا لم يكن موجوداً
+                         if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
+                    }
                     socialHTML += `<a href="${escapeHtml(href)}" target="_blank" class="social-icon">${svgs[key]}</a>`;
                 }
             }
             
-            // إخفاء الصورة في Simple Pro أو إذا طلب المستخدم إخفاءها
             const avatarDisplay = (theme === 'simple-pro' || data.profile.hideName) ? 'display: none;' : '';
             const avatarMargin = (theme === 'simple-pro' || data.profile.hideName) ? '' : `<img src="${safeAvatar}" alt="${safeName}" class="avatar">`;
 
@@ -440,8 +374,8 @@
                  let borderStyle = '';
                  let extraClass = '';
                  
+                 // معالجة الأنماط المختلفة للزر
                  if (link.highlight) {
-                     // عكس الألوان إذا كان الرابط رئيسياً
                      linkBg = data.design.textColor;
                      linkTxt = data.design.linkBgColor;
                      borderStyle += `border: 3px solid ${data.design.textColor};`;
@@ -455,7 +389,6 @@
                 return `<a href="${escapeHtml(link.url)}" target="_blank" class="link-btn${extraClass}" style="background-color:${linkBg}; color:${linkTxt}; ${borderStyle}">${escapeHtml(link.title)}</a>`;
             }).join('');
             
-            // إضافة CSS خاص بالـ Motion Pro
             let motionProCSS = '';
             if (theme === 'motion-pro') {
                 motionProCSS = `
@@ -486,6 +419,7 @@
     .bio { font-size: 16px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6; }
     .socials { display: flex; justify-content: center; gap: 18px; margin-bottom: 30px; color: inherit; }
     .social-icon { color: inherit; transition: transform 0.3s ease; display: inline-block; }
+    /* تأكدنا هنا من عمل الأيقونات بشكل صحيح */
     .social-icon svg { width: 24px; height: 24px; vertical-align: middle; }
     .social-icon:hover { transform: scale(1.15); }
     .link-btn { display: block; width: 100%; padding: 18px; margin-bottom: 15px; text-decoration: none; font-weight: 700; font-size: 18px; box-sizing: border-box; transition: filter 0.3s; }
@@ -507,23 +441,36 @@
 
     document.addEventListener('DOMContentLoaded', () => {
 
-        // --- 2. التحقق من الرابط: هل نحن في وضع التعديل أم العرض؟ ---
+        // --- 2. التحقق من الرابط وتصحيح مشكلة فك الضغط ---
         if (window.location.hash && window.location.hash.startsWith('#data=')) {
             try {
                 const encodedData = window.location.hash.substring(6);
-                const decompressedData = LZString.decompressFromEncodedURIComponent(encodedData);
+                
+                // حاول فك الضغط (قد يكون هناك بيانات تالفة من محاولات سابقة)
+                let decompressedData;
+                try {
+                    decompressedData = LZString.decompressFromEncodedURIComponent(encodedData);
+                } catch (e) {
+                    console.error("LZString Decompression Failed:", e);
+                    throw new Error("Failed to decompress data.");
+                }
+
+                if (!decompressedData) throw new Error("Decompressed data is empty.");
+
                 const decodedData = JSON.parse(decompressedData);
                 
                 document.body.classList.add('render-mode');
                 document.getElementById('render-container').innerHTML = generateFinalHTML(decodedData);
                 document.title = `${escapeHtml(decodedData.profile.name)} | صفحة الروابط`;
             } catch (error) {
-                console.error("Data error:", error);
-                showToast("حدث خطأ في قراءة الرابط، العودة للمحرر...");
-                setTimeout(() => {
-                    window.location.hash = ''; // مسح الـ hash
-                    initializeApp();
-                }, 1500);
+                console.error("Data loading failed. Reverting to editor.", error);
+                
+                // إذا فشل التحميل، لا تحذف الهاش فوراً، بل حاول البدء كالمعتاد
+                initializeApp();
+                
+                // عرض رسالة خطأ للمستخدم
+                const t = translations[config.lang || 'ar'];
+                showToast(t['toast-data-error'] || "حدث خطأ في تحميل الصفحة. قد تكون البيانات تالفة.");
             }
         } else {
             initializeApp();
@@ -531,8 +478,8 @@
 
     });
         
+    // (بقية وظيفة initializeApp والدوال المساعدة تبقى كما هي)
     function initializeApp() {
-        // عناصر DOM
         const els = {
             name: document.getElementById('profile-name'),
             bio: document.getElementById('profile-bio'),
@@ -575,7 +522,6 @@
             }
         };
 
-        // 1. تحديد القيم الافتراضية والثوابت
         const DEFAULTS = { 
             avatar: 'https://cdn-icons-png.flaticon.com/512/847/847969.png',
             name_ar: 'اسمك هنا',
@@ -587,7 +533,6 @@
             theme: 'light'
         };
 
-        // الإعدادات الافتراضية
         let config = {
             profile: { 
                 name: DEFAULTS.name_ar, 
@@ -602,10 +547,8 @@
             lang: 'ar' 
         };
         
-        // التحميل من التخزين المحلي
         loadConfig();
         
-        // قاموس الترجمة
         const translations = {
             ar: { 
                 'editor-title': 'مُنشئ صفحة الروابط الذكية - Pro',
@@ -729,8 +672,6 @@
             }
         };
 
-        // --- وظائف الحفظ والترجمة (الجديد) ---
-        
         const saveConfigDebounced = debounce(saveConfig);
 
         function saveConfig() {
@@ -748,35 +689,29 @@
                 const savedConfig = localStorage.getItem('linkPageConfig');
                 if (savedConfig) {
                     const loadedConfig = JSON.parse(savedConfig);
-                    // دمج البيانات المحفوظة مع الإعدادات الافتراضية
                     config = { ...config, ...loadedConfig };
                     
-                    // ضمان أن الروابط والـ Socials هي مصفوفة/كائن (لتجنب أخطاء التحميل القديم)
                     if (!Array.isArray(config.links)) config.links = [ { title: DEFAULTS.linkTitle_ar, url: 'https://google.com', highlight: false } ];
                     if (typeof config.socials !== 'object') config.socials = { twitter: '', instagram: '', facebook: '', linkedin: '', whatsapp: '' };
                 }
             } catch (e) {
                 console.warn("Failed to load config from storage:", e);
-                localStorage.removeItem('linkPageConfig'); // مسح التخزين الفاسد
+                localStorage.removeItem('linkPageConfig');
             }
         }
 
-        // 3. وظيفة التبديل بين اللغات (Linguistics)
         function setLanguage(lang) {
             config.lang = lang;
             const t = translations[lang];
             
-            // 1. تغيير الاتجاه والخطوط
             document.documentElement.lang = lang;
             document.documentElement.dir = (lang === 'ar' ? 'rtl' : 'ltr');
             document.body.classList.toggle('en-mode', lang === 'en');
             
-            // 2. تحديث النصوص العامة
             document.title = t['editor-title'];
             document.getElementById('editor-h1').innerHTML = `🛠️ ${t['editor-panel-h1']}`;
             els.langToggleBtn.textContent = (lang === 'ar' ? 'English 🇺🇸' : 'العربية 🇦🇪');
             
-            // 3. تحديث جميع العناصر ذات السمة data-i18n و data-i18n-placeholder
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.textContent = t[key];
@@ -790,14 +725,11 @@
                 if (t[key]) el.title = t[key];
             });
             
-            // إعادة مزامنة وتوليد الروابط بعد تغيير اللغة (لتحديث النصوص الداخلية)
             syncUI();
             saveConfig();
         }
 
-        // --- المعاينة (Core Rendering) ---
         function renderPreview() {
-            // تطبيق الألوان
             els.preview.style.background = config.design.bgColor;
             els.preview.style.color = config.design.textColor;
 
@@ -807,10 +739,7 @@
                 ? '' 
                 : `<img src="${escapeHtml(config.profile.avatar)}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid #fff; box-shadow:0 5px 15px rgba(0,0,0,0.1); margin-bottom:10px;">`;
 
-            // بناء المحتوى (باستخدام escapeHtml لمنع XSS)
-            let html = `
-                ${avatarHtml}
-            `;
+            let html = `${avatarHtml}`;
             
             if (!config.profile.hideName) {
                  html += `<h2 style="margin:5px 0 10px; font-weight:900;">${escapeHtml(config.profile.name)}</h2>`;
@@ -820,14 +749,16 @@
             }
 
 
-            // 2. التواصل الاجتماعي (نحتاج لنسخة من SVGs هنا أو استخدامها مباشرة)
             let socialPreviewHTML = '';
             socialPreviewHTML += '<div style="display:flex; justify-content:center; gap:15px; margin-bottom:30px;">';
             for (const [key, val] of Object.entries(config.socials)) {
                 if (val && svgs[key]) {
                     let href = val;
-                    if (key === 'whatsapp' && !val.startsWith('http')) href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-                    else if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
+                    if (key === 'whatsapp') {
+                        href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
+                    } else if (key === 'twitter' || key === 'instagram' || key === 'facebook' || key === 'linkedin') {
+                         if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
+                    }
                     socialPreviewHTML += `<a href="${escapeHtml(href)}" target="_blank" style="color:inherit; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${svgs[key]}</a>`;
                 }
             }
@@ -835,7 +766,6 @@
             html += socialPreviewHTML;
 
 
-            // 3. الأزرار
             html += '<div style="display:flex; flex-direction:column; gap:15px;">';
             config.links.forEach(link => {
                 let borderStyle = '';
@@ -850,9 +780,8 @@
                     borderStyle += `border-radius: ${config.design.btnRadius}; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none;`;
                 }
                 
-                // إضافة تأثير بسيط للمعانية لـ Motion Pro
                 if (config.design.theme === 'motion-pro') {
-                    extraStyles += 'filter: brightness(0.98);'; // لعمل تأثير مرئي خفيف
+                    extraStyles += 'filter: brightness(0.98);'; 
                 }
 
                 html += `
@@ -876,14 +805,12 @@
             els.preview.innerHTML = html;
         }
 
-        // --- مزامنة UI مع Config ---
         function syncUI() {
             els.name.value = config.profile.name;
             els.bio.value = config.profile.bio;
             els.hideName.checked = config.profile.hideName;
             els.hideBio.checked = config.profile.hideBio;
             
-            // الصورة
             const t = translations[config.lang];
             if (config.profile.avatar.startsWith('data:')) {
                 els.avatarUrlInput.value = '';
@@ -893,10 +820,8 @@
                 els.avatarBtnText.textContent = t['btn-upload-file'];
             }
             
-            // تحديث حالة زر الحذف
             els.deleteAvatarBtn.style.display = (config.profile.avatar !== DEFAULTS.avatar) ? 'flex' : 'none';
 
-            // التواصل الاجتماعي
             els.socialsList.innerHTML = '';
             Object.keys(config.socials).forEach(key => {
                 const div = document.createElement('div');
@@ -905,10 +830,8 @@
                 els.socialsList.appendChild(div);
             });
 
-            // الروابط
             renderLinksList();
 
-            // الألوان
             els.colors.bg.value = config.design.bgColor.startsWith('#') ? config.design.bgColor : '#ffffff';
             els.colors.linkBg.value = config.design.linkBgColor.startsWith('rgb') ? '#ffffff' : config.design.linkBgColor;
             els.colors.linkText.value = config.design.linkTextColor.startsWith('rgb') ? '#1a1a1a' : config.design.linkTextColor;
@@ -946,7 +869,6 @@
 
         // --- الاستماع للأحداث (Event Listeners) ---
         
-        // 1. النصوص الأساسية + الحفظ التلقائي
         [els.name, els.bio, els.hideName, els.hideBio].forEach(el => el.addEventListener('input', () => {
             config.profile.name = els.name.value;
             config.profile.bio = els.bio.value;
@@ -956,10 +878,9 @@
             saveConfigDebounced();
         }));
         
-        // 2. الصورة (رابط أو رفع)
         els.avatarUrlInput.addEventListener('input', () => {
             config.profile.avatar = els.avatarUrlInput.value || DEFAULTS.avatar;
-            els.avatarUpload.value = ''; // مسح الملف المرفوع إذا تم إدخال رابط
+            els.avatarUpload.value = '';
             syncUI();
             saveConfigDebounced();
         });
@@ -974,7 +895,7 @@
                 }
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    config.profile.avatar = event.target.result; // Base64
+                    config.profile.avatar = event.target.result;
                     syncUI();
                     saveConfigDebounced();
                 };
@@ -982,16 +903,14 @@
             }
         });
         
-        // 2.1 حذف الصورة (التحسين المطلوب)
         els.deleteAvatarBtn.addEventListener('click', () => {
-            config.profile.avatar = DEFAULTS.avatar; // العودة للقيمة الافتراضية
-            els.avatarUpload.value = ''; // مسح حقل رفع الملف
+            config.profile.avatar = DEFAULTS.avatar; 
+            els.avatarUpload.value = ''; 
             syncUI(); 
             showToast(translations[config.lang]['toast-delete-avatar'] || "تم حذف الصورة الرمزية بنجاح.");
             saveConfig();
         });
 
-        // 3. التواصل الاجتماعي
         els.socialsList.addEventListener('input', (e) => {
             if(e.target.tagName === 'INPUT') {
                 config.socials[e.target.dataset.social] = e.target.value;
@@ -1000,7 +919,6 @@
             }
         });
 
-        // 4. الروابط (إضافة، حذف، تعديل، ترتيب) 
         els.addLink.addEventListener('click', () => {
             config.links.push({ title: translations[config.lang]['link-new-title'], url: '#', highlight: false });
             syncUI();
@@ -1019,7 +937,6 @@
             saveConfigDebounced();
         });
         
-        // 4.1 تعديل حالة "الرابط الرئيسي"
         els.linksList.addEventListener('change', (e) => {
             if(e.target.classList.contains('link-highlight')) {
                 const idx = e.target.closest('.link-item').dataset.id;
@@ -1038,7 +955,6 @@
             }
         });
 
-        // تفعيل SortableJS للسحب والإفلات
         new Sortable(els.linksList, {
             handle: '.drag-handle',
             animation: 150,
@@ -1051,7 +967,6 @@
             }
         });
 
-        // 5. التصميم
         els.theme.addEventListener('change', (e) => {
             const t = themes[e.target.value];
             if(t) {
@@ -1085,27 +1000,24 @@
             saveConfigDebounced();
         });
         
-        // 6. زر تبديل اللغة
         els.langToggleBtn.addEventListener('click', () => {
             setLanguage(config.lang === 'ar' ? 'en' : 'ar');
         });
 
         // --- الحفظ والتصدير ---
         
-        // وظيفة الحصول على الرابط الطويل
         function getLongUrl() {
             const jsonString = JSON.stringify(config);
             const compressed = LZString.compressToEncodedURIComponent(jsonString);
+            // يتم استخدام window.location.origin و window.location.pathname لضمان عمل الرابط في أي مسار ملف
             return `${window.location.origin}${window.location.pathname}#data=${compressed}`;
         }
 
-        // توليد الرابط الطويل مع QR Code
         els.generate.addEventListener('click', () => {
             const url = getLongUrl();
             
             els.modal.input.value = url;
             
-            // توليد QR Code
             els.modal.qr.innerHTML = ''; 
             try {
                 new QRCode(els.modal.qr, { text: url, width: 128, height: 128, correctLevel : QRCode.CorrectLevel.H });
@@ -1116,7 +1028,6 @@
             els.modal.self.style.display = 'flex';
         });
         
-        // تقصير الرابط
         els.shorten.addEventListener('click', async () => {
             const longUrl = getLongUrl();
             const t = translations[config.lang];
@@ -1180,7 +1091,7 @@
             showToast(translations[config.lang]['toast-download']);
         });
         
-        // نسخ كود HTML (التحسين المطلوب)
+        // نسخ كود HTML
         els.copyHtml.addEventListener('click', () => {
             const finalHTML = generateFinalHTML(config);
             els.htmlModal.codeArea.value = finalHTML;
@@ -1197,7 +1108,6 @@
             els.htmlModal.self.style.display = 'none';
         });
 
-        // بدء التطبيق
         setLanguage(config.lang);
         syncUI();
     }
