@@ -3,834 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مُنشئ صفحة الروابط الذكية - Pro</title>
+    <title>Link Page Builder Pro</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Cairo:wght@400;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* --- الإعدادات العامة --- */
+        /* --- متغيرات الألوان --- */
         :root {
-            --editor-bg: #f7f8fa;
-            --preview-bg: #eef0f5;
-            --widget-bg: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #555;
-            --border-color: #e0e0e0;
-            --accent-color: #007bff;
-            --accent-hover: #0056b3;
-            --danger-color: #dc3545;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
-            --border-radius: 12px;
+            --primary: #4f46e5;
+            --bg-editor: #f3f4f6;
+            --bg-panel: #ffffff;
+            --border: #e5e7eb;
+            --text-main: #1f2937;
         }
 
-        body {
-            font-family: 'Cairo', sans-serif;
-            margin: 0;
-            background-color: var(--editor-bg);
-            color: var(--text-primary);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-        }
+        body { margin: 0; font-family: 'Cairo', sans-serif; background: var(--bg-editor); height: 100vh; overflow: hidden; }
+        
+        /* وضع العرض النهائي (عند فتح الرابط) */
+        body.render-mode { height: auto; overflow: auto; background: #fff; }
+        #app-editor { display: flex; height: 100%; }
+        body.render-mode #app-editor { display: none; }
 
-        /* --- التخطيط العام --- */
-        #app-container { display: flex; width: 100%; height: 100%; }
-
-        /* --- لوحة التحكم (يمين) --- */
-        #editor-panel {
-            width: 450px;
-            height: 100%;
-            overflow-y: auto;
-            background-color: var(--widget-bg);
-            padding: 25px;
-            border-left: 1px solid var(--border-color);
-            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
-            box-sizing: border-box;
+        /* --- لوحة التحكم --- */
+        .editor-panel {
+            width: 400px; background: var(--bg-panel); border-left: 1px solid var(--border);
+            display: flex; flex-direction: column; height: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            z-index: 10;
         }
+        .editor-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .editor-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .editor-footer { padding: 15px; border-top: 1px solid var(--border); background: #f9fafb; }
 
-        #editor-panel h1 {
-            font-size: 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
-        }
+        /* الأقسام */
+        .section { background: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
+        .section-header { padding: 12px 15px; background: #f8f9fa; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; }
+        .section-body { padding: 15px; display: none; }
+        .section.open .section-body { display: block; }
 
-        /* --- لوحة المعاينة (يسار) --- */
-        #preview-panel {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: var(--preview-bg);
-            padding: 20px;
-            height: 100%;
-            overflow: hidden;
-        }
+        /* عناصر النموذج */
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 13px; margin-bottom: 5px; color: #555; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+        
+        .upload-box { border: 2px dashed #ddd; padding: 15px; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s; position: relative; }
+        .upload-box:hover { border-color: var(--primary); background: #f0f4ff; }
+        .upload-box input { position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0; cursor: pointer; }
 
-        /* --- عناصر النموذج --- */
-        .editor-section {
-            background: var(--editor-bg);
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
+        /* --- لوحة المعاينة --- */
+        .preview-panel { flex: 1; display: flex; justify-content: center; align-items: center; background: #eef2f6; position: relative; }
+        .phone-mockup {
+            width: 360px; height: 750px; background: #fff; border-radius: 35px; border: 10px solid #222;
+            overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
+        .preview-iframe { width: 100%; height: 100%; border: none; background: #fff; overflow-y: auto; }
 
-        .editor-section summary {
-            font-weight: 700; padding: 15px; cursor: pointer; list-style: none;
-            display: flex; justify-content: space-between; align-items: center; background: #fff;
-        }
-        .editor-section summary::-webkit-details-marker { display: none; }
-
-        .form-content { padding: 15px; border-top: 1px solid var(--border-color); }
-
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-secondary); }
-
-        input[type="text"], input[type="url"], textarea, select {
-            width: 100%; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; background: #fff; box-sizing: border-box; transition: 0.2s;
-            font-family: inherit;
-        }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(0,123,255,0.2); }
-
-        /* --- زر رفع الصورة وتعديل رابط الصورة --- */
-        .file-upload-wrapper {
-            position: relative; overflow: hidden; display: inline-block; width: 100%;
-            margin-bottom: 10px;
-        }
-        .file-upload-wrapper input[type=file] {
-            font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;
-        }
-        .file-upload-btn {
-            border: 1px dashed var(--accent-color); color: var(--accent-color);
-            background: rgba(0,123,255,0.05); padding: 10px; text-align: center;
-            border-radius: 8px; font-weight: 700; cursor: pointer;
-        }
-        #profile-avatar-url { margin-top: 10px; }
-
-        /* --- الأزرار والألوان --- */
-        .color-picker-group { display: flex; gap: 10px; }
-        input[type="color"] { -webkit-appearance: none; width: 40px; height: 40px; border: none; padding: 0; border-radius: 50%; cursor: pointer; }
-
-        .btn {
-            padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer;
-            font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-primary { background-color: var(--accent-color); color: white; }
-        .btn-primary:hover { background-color: var(--accent-hover); }
-        .btn-secondary { background-color: #6c757d; color: white; }
-        .btn-danger { background: transparent; color: var(--danger-color); }
-        .btn-danger:hover { background-color: rgba(220, 53, 69, 0.1); }
-        .btn-success { background-color: #28a745; color: white; }
-        .btn-success:hover { background-color: #1e7e34; }
-        .btn-full { width: 100%; }
-
-        /* --- قائمة الروابط --- */
-        #links-list .link-item {
-            background-color: #fff; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .drag-handle { cursor: grab; color: #aaa; font-size: 20px; padding: 0 5px; }
-        .sortable-ghost { opacity: 0.4; background: #e0f0ff; }
-
-        /* --- الهاتف والمعاينة --- */
-        #preview-frame {
-            width: 375px; height: 812px; background-color: white; border-radius: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15); padding: 15px; box-sizing: border-box;
-            position: relative; border: 8px solid #333;
-        }
-        #preview-content {
-            width: 100%; height: 100%; background-color: #f0f0f0; border-radius: 30px;
-            overflow-y: auto; text-align: center; padding: 40px 15px; box-sizing: border-box;
-        }
-        #preview-content::-webkit-scrollbar { display: none; }
+        /* --- الروابط --- */
+        .link-item { background: #fff; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; border-radius: 6px; display: flex; gap: 8px; align-items: center; }
+        .handle { cursor: grab; color: #aaa; font-size: 20px; }
+        .btn { border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; width: 100%; margin-bottom: 5px; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-secondary { background: #6b7280; color: #fff; }
+        .btn-danger { background: #fee2e2; color: #dc2626; width: auto; padding: 5px 10px; }
 
         /* --- Modal --- */
-        #modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-        #modal-content {
-            background: white; padding: 30px; border-radius: var(--border-radius);
-            width: 90%; max-width: 450px; text-align: center; animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-        #qrcode-container { margin: 20px auto; display: flex; justify-content: center; }
-
-        /* --- Toast Notification --- */
-        #toast {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
-            text-align: center; border-radius: 8px; padding: 16px; position: fixed;
-            z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%);
-            font-size: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-        /* --- وضع العرض النهائي --- */
-        body.render-mode { display: block; height: auto; overflow: auto; background: #fff; }
-        body.render-mode #app-container { display: none; }
-        #render-container { display: none; }
-        body.render-mode #render-container { display: block; }
-
-        /* --- التجاوب --- */
-        @media (max-width: 900px) {
-            #app-container { flex-direction: column; }
-            #editor-panel { width: 100%; height: auto; border-left: none; }
-            #preview-panel { height: 100vh; position: sticky; top: 0; z-index: 10; border-top: 1px solid #ddd;}
-            #preview-frame { height: 90%; width: 90%; border-width: 4px; }
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; }
+        
+        /* RTL support */
+        html[dir="ltr"] .editor-panel { border-left: none; border-right: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
-    <div id="toast">تمت العملية بنجاح</div>
+    <div id="app-editor">
+        <div class="editor-panel">
+            <div class="editor-header">
+                <h3>Link Builder 🚀</h3>
+                <button id="lang-btn" class="btn-secondary" style="width: auto; padding: 5px 10px; font-size: 12px;">English</button>
+            </div>
+            
+            <div class="editor-content">
+                
+                <div class="section open">
+                    <div class="section-header" onclick="toggleSection(this)">👤 <span data-i18n="sec_profile">الملف الشخصي</span></div>
+                    <div class="section-body">
+                        <div class="form-group">
+                            <label data-i18n="lbl_name">الاسم</label>
+                            <input type="text" id="p-name" oninput="updateConfig()">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="lbl_bio">نبذة (Bio)</label>
+                            <textarea id="p-bio" rows="2" oninput="updateConfig()"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label data-i18n="lbl_avatar">الصورة الرمزية</label>
+                            <div class="upload-box">
+                                <span id="avatar-status">📂 اضغط لرفع صورة</span>
+                                <input type="file" accept="image/*" onchange="handleImageUpload(this, 'avatar')">
+                            </div>
+                        </div>
 
-    <div id="app-container">
-        <div id="editor-panel">
-            <h1>🛠️ محرر الصفحة</h1>
-
-            <details class="editor-section" open>
-                <summary>المعلومات الشخصية</summary>
-                <div class="form-content">
-                    <div class="form-group">
-                        <label>الاسم</label>
-                        <input type="text" id="profile-name" placeholder="اسمك أو علامتك التجارية">
-                    </div>
-                    <div class="form-group">
-                        <label>نبذة (Bio)</label>
-                        <textarea id="profile-bio" placeholder="وصف مختصر..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>الصورة الرمزية</label>
-
-                        <input type="url" id="profile-avatar-url" placeholder="أو رابط الصورة المباشر (لتقصير الرابط)">
-
-                        <p style="text-align: center; margin: 5px 0; font-size: 12px; color: #888;">--- أو ---</p>
-
-                        <div class="file-upload-wrapper">
-                            <div class="file-upload-btn" id="upload-btn-text">اختر صورة من جهازك 📁 (قد يطيل الرابط)</div>
-                            <input type="file" id="profile-avatar-upload" accept="image/*">
+                        <div class="form-group">
+                            <label data-i18n="lbl_cover">صورة الغلاف (Banner)</label>
+                            <div class="upload-box" style="border-style: solid; background: #fafafa;">
+                                <span id="cover-status">🖼️ اضغط لرفع غلاف (للقالب العريض)</span>
+                                <input type="file" accept="image/*" onchange="handleImageUpload(this, 'cover')">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </details>
 
-            <details class="editor-section">
-                <summary>التواصل الاجتماعي</summary>
-                <div class="form-content" id="social-links-list"></div>
-            </details>
-
-            <details class="editor-section" open>
-                <summary>الروابط (اسحب للترتيب)</summary>
-                <div class="form-content">
-                    <div id="links-list"></div>
-                    <button id="add-link-btn" class="btn btn-primary btn-full">
-                         إضافة رابط جديد ➕
-                    </button>
-                </div>
-            </details>
-
-            <details class="editor-section" open>
-                <summary>التصميم والألوان</summary>
-                <div class="form-content">
-                     <div class="form-group">
-                        <label>الثيم الجاهز</label>
-                        <select id="theme-selector">
-                            <option value="light">فاتح (Light)</option>
-                            <option value="dark">داكن (Dark)</option>
-                            <option value="simple-pro">⭐️ احترافي (نصي)</option>
-                            <option value="motion-pro">✨ مميز (حركي)</option>
-                            <option value="blue">أزرق محيطي</option>
-                            <option value="pink">تدرج وردي</option>
-                            <option value="elegant">أسود وذهبي</option>
-                        </select>
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">🔗 <span data-i18n="sec_links">الروابط</span></div>
+                    <div class="section-body">
+                        <div id="links-container"></div>
+                        <button class="btn btn-primary" onclick="addLink()" data-i18n="btn_add_link">+ رابط جديد</button>
                     </div>
-                    <div class="form-group">
-                        <label>تخصيص الألوان</label>
-                        <div class="color-picker-group">
-                            <input type="color" id="bg-color" title="الخلفية">
-                            <input type="color" id="link-bg-color" title="خلفية الزر">
-                            <input type="color" id="link-text-color" title="نص الزر">
-                            <input type="color" id="text-color" title="النص الأساسي">
+                </div>
+
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">🎨 <span data-i18n="sec_design">التصميم</span></div>
+                    <div class="section-body">
+                        <div class="form-group">
+                            <label data-i18n="lbl_template">القالب</label>
+                            <select id="d-template" onchange="updateConfig()">
+                                <option value="classic">الكلاسيكي (Classic)</option>
+                                <option value="hero">البانر العريض (Hero)</option>
+                                <option value="grid">شبكة مربعات (Bento Grid)</option>
+                                <option value="glass">زجاجي شفاف (Glassmorphism)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label data-i18n="lbl_theme">لوحة الألوان</label>
+                            <select id="d-theme" onchange="updateConfig()">
+                                <option value="light">فاتح (Light)</option>
+                                <option value="dark">داكن (Dark)</option>
+                                <option value="ocean">محيط أزرق (Ocean)</option>
+                                <option value="sunset">غروب الشمس (Sunset)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                             <label>تخصيص لون الخلفية</label>
+                             <input type="color" id="d-custom-bg" oninput="updateConfig()" value="#f3f4f6">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>شكل الأزرار</label>
-                        <select id="button-style-selector">
-                            <option value="8px">حواف ناعمة</option>
-                            <option value="25px">دائري كامل</option>
-                            <option value="0px">مربع حاد</option>
-                            <option value="neubrutalism">تصميم حاد (Neubrutalism)</option>
-                        </select>
-                    </div>
                 </div>
-            </details>
 
-            <div class="actions" style="margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="generate-link-btn" class="btn btn-primary" style="flex:1;">حفظ ومشاركة 🚀</button>
-                <button id="shorten-btn" class="btn btn-success" style="flex:1;">تقصير الرابط ✂️</button>
-                <button id="download-html-btn" class="btn btn-secondary" style="flex:1;">تحميل HTML 💾</button>
             </div>
 
-            <div style="margin-top: 20px; font-size: 12px; color: #888; text-align: center;">
-                * يُنصح باستخدام "رابط صورة مباشر" لتمكين خاصية تقصير الرابط.
+            <div class="editor-footer">
+                <button class="btn btn-primary" onclick="generateShareLink()" data-i18n="btn_share">حفظ ومشاركة 🔗</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-secondary" onclick="downloadHTML()" data-i18n="btn_download">تحميل HTML 📥</button>
+                </div>
             </div>
         </div>
 
-        <div id="preview-panel">
-            <div id="preview-frame">
-                <div id="preview-content">
-                    </div>
+        <div class="preview-panel">
+            <div class="phone-mockup">
+                <iframe id="preview-frame" class="preview-iframe"></iframe>
             </div>
         </div>
     </div>
 
-    <div id="render-container"></div>
-
-    <div id="modal">
-        <div id="modal-content">
-            <h2>✨ صفحتك جاهزة!</h2>
-            <p>امسح الكود أو انسخ الرابط أدناه:</p>
-            <div id="qrcode-container"></div>
-            <input type="text" id="generated-link" readonly style="direction: ltr; text-align: center; margin-bottom: 10px;">
-            <div style="display: flex; gap: 10px;">
-                <button id="copy-link-btn" class="btn btn-primary" style="flex:1;">نسخ الرابط</button>
-                <button id="close-modal-btn" class="btn btn-secondary" style="flex:1;">إغلاق</button>
-            </div>
-            <p style="font-size: 12px; margin-top: 15px; color: #555;">(إذا كان الرابط الظاهر طويلاً، فهذا يعني أن الصورة التي رفعتها كبيرة جداً.)</p>
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <h3>جاهز للمشاركة! 🎉</h3>
+            <div id="qrcode" style="margin: 20px auto; display: flex; justify-content: center;"></div>
+            <input type="text" id="share-url" readonly style="width: 100%; margin-bottom: 10px; direction: ltr;">
+            <button class="btn btn-primary" onclick="copyLink()">نسخ الرابط</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('share-modal').style.display='none'" style="margin-top: 10px;">إغلاق</button>
         </div>
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-        // --- 1. التحقق من الرابط: هل نحن في وضع التعديل أم العرض؟ ---
-        if (window.location.hash && window.location.hash.startsWith('#data=')) {
-            try {
-                const encodedData = window.location.hash.substring(6);
-                const decompressedData = LZString.decompressFromEncodedURIComponent(encodedData);
-                const decodedData = JSON.parse(decompressedData);
-
-                document.body.classList.add('render-mode');
-                document.getElementById('render-container').innerHTML = generateFinalHTML(decodedData);
-                document.title = `${escapeHtml(decodedData.profile.name)} | صفحة الروابط`;
-            } catch (error) {
-                console.error("Data error:", error);
-                showToast("حدث خطأ في قراءة الرابط، العودة للمحرر...");
-                setTimeout(initializeApp, 1500);
-            }
-        } else {
-            initializeApp();
-        }
-
-    });
-
-    // --- الوظيفة المساعدة: تعقيم النصوص (XSS Protection) ---
-    function escapeHtml(text) {
-        if (!text) return "";
-        return text
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    // --- الوظيفة المساعدة: عرض التنبيهات (Toast) ---
-    function showToast(message) {
-        const x = document.getElementById("toast");
-        x.textContent = message;
-        x.className = "show";
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-    }
-
-    function initializeApp() {
-        // عناصر DOM
-        const els = {
-            name: document.getElementById('profile-name'),
-            bio: document.getElementById('profile-bio'),
-            avatarUpload: document.getElementById('profile-avatar-upload'),
-            avatarUrlInput: document.getElementById('profile-avatar-url'), // الجديد
-            avatarBtnText: document.getElementById('upload-btn-text'),
-            linksList: document.getElementById('links-list'),
-            socialsList: document.getElementById('social-links-list'),
-            preview: document.getElementById('preview-content'),
-            theme: document.getElementById('theme-selector'),
-            colors: {
-                bg: document.getElementById('bg-color'),
-                linkBg: document.getElementById('link-bg-color'),
-                linkText: document.getElementById('link-text-color'),
-                text: document.getElementById('text-color')
+        // --- 1. إعدادات اللغة والبيانات ---
+        let lang = 'ar';
+        const translations = {
+            ar: {
+                sec_profile: 'الملف الشخصي', lbl_name: 'الاسم', lbl_bio: 'نبذة', lbl_avatar: 'الصورة الرمزية', lbl_cover: 'صورة الغلاف (Banner)',
+                sec_links: 'الروابط', btn_add_link: '+ إضافة رابط',
+                sec_design: 'التصميم', lbl_template: 'القالب', lbl_theme: 'الألوان',
+                btn_share: 'حفظ ومشاركة 🔗', btn_download: 'تحميل ملف HTML 📥'
             },
-            btnStyle: document.getElementById('button-style-selector'),
-            addLink: document.getElementById('add-link-btn'),
-            generate: document.getElementById('generate-link-btn'),
-            shorten: document.getElementById('shorten-btn'), // الجديد
-            download: document.getElementById('download-html-btn'),
-            modal: {
-                self: document.getElementById('modal'),
-                input: document.getElementById('generated-link'),
-                copy: document.getElementById('copy-link-btn'),
-                close: document.getElementById('close-modal-btn'),
-                qr: document.getElementById('qrcode-container')
+            en: {
+                sec_profile: 'Profile', lbl_name: 'Name', lbl_bio: 'Bio', lbl_avatar: 'Avatar', lbl_cover: 'Cover Image',
+                sec_links: 'Links', btn_add_link: '+ Add Link',
+                sec_design: 'Design', lbl_template: 'Template', lbl_theme: 'Color Theme',
+                btn_share: 'Save & Share 🔗', btn_download: 'Download HTML 📥'
             }
         };
 
-        // الإعدادات الافتراضية
+        // البيانات الافتراضية
         let config = {
-            profile: { name: 'اسمك هنا', bio: 'أهلاً بك في صفحتي الشخصية 👋', avatar: 'https://cdn-icons-png.flaticon.com/512/847/847969.png' },
-            socials: { twitter: '', instagram: '', facebook: '', linkedin: '', whatsapp: '' },
-            links: [ { title: 'موقعي الإلكتروني 🌐', url: 'https://google.com' } ],
-            design: { theme: 'light', bgColor: '#f7f8fa', linkBgColor: '#ffffff', linkTextColor: '#1a1a1a', textColor: '#1a1a1a', btnRadius: '8px' }
+            profile: { name: 'اسمك هنا', bio: 'مرحباً بك في صفحتي الخاصة', avatar: '', cover: '' },
+            links: [{ title: 'موقعي الإلكتروني 🌐', url: 'https://google.com' }],
+            design: { template: 'classic', theme: 'light', customBg: '#f3f4f6' }
         };
 
-        // الثيمات الجديدة والمحدثة
-        const themes = {
-            'light': { bg: '#f7f8fa', lBg: '#ffffff', lTxt: '#1a1a1a', txt: '#1a1a1a' },
-            'dark': { bg: '#121212', lBg: '#2a2a2a', lTxt: '#ffffff', txt: '#ffffff' },
-            // القالب الاحترافي (نصي)
-            'simple-pro': { bg: '#f9f9f9', lBg: '#000000', lTxt: '#ffffff', txt: '#333333', btnRadius: '25px' },
-            // القالب الحركي (مميز)
-            'motion-pro': { bg: 'linear-gradient(180deg, #1e3c72 0%, #2a5298 100%)', lBg: 'rgba(255,255,255,0.95)', lTxt: '#2a5298', txt: '#ffffff', btnRadius: '12px' },
-            'blue': { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', lBg: 'rgba(255,255,255,0.9)', lTxt: '#4a4a4a', txt: '#ffffff' },
-            'pink': { bg: 'linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%)', lBg: '#fff0f3', lTxt: '#d63384', txt: '#4a001f' },
-            'elegant': { bg: '#000000', lBg: '#D4AF37', lTxt: '#000000', txt: '#D4AF37' }
-        };
-
-        // أيقونات SVG (كما هي)
-        const icons = {
-            twitter: '<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-            instagram: '<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.85s.012-3.584.07-4.85c.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a3.999 3.999 0 110-7.998 3.999 3.999 0 010 7.998z"/></svg>',
-            facebook: '<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>',
-            linkedin: '<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>',
-            whatsapp: '<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>'
-        };
-
-        // --- المعاينة (Core Rendering) ---
-        function renderPreview() {
-            // تطبيق الألوان
-            els.preview.style.background = config.design.bgColor;
-            els.preview.style.color = config.design.textColor;
-
-            const isSimplePro = config.design.theme === 'simple-pro';
-            const avatarHtml = isSimplePro 
-                ? '' // لا صورة في قالب Simple Pro
-                : `<img src="${escapeHtml(config.profile.avatar)}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid #fff; box-shadow:0 5px 15px rgba(0,0,0,0.1); margin-bottom:10px;">`;
-
-            // بناء المحتوى (باستخدام escapeHtml لمنع XSS)
-            let html = `
-                ${avatarHtml}
-                <h2 style="margin:5px 0 10px; font-weight:900;">${escapeHtml(config.profile.name)}</h2>
-                <p style="margin:0 auto 20px; opacity:0.9; max-width:90%; font-size:14px; line-height:1.5;">${escapeHtml(config.profile.bio)}</p>
-            `;
-
-            // 2. التواصل الاجتماعي
-            html += '<div style="display:flex; justify-content:center; gap:15px; margin-bottom:25px;">';
-            for (const [key, val] of Object.entries(config.socials)) {
-                if (val && icons[key]) {
-                    let href = val;
-                    if (key === 'whatsapp' && !val.startsWith('http')) href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-                    else if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
-
-                    html += `<a href="${escapeHtml(href)}" target="_blank" style="color:inherit; transition:transform 0.2s; display:block;">${icons[key]}</a>`;
-                }
-            }
-            html += '</div>';
-
-            // 3. الأزرار
-            html += '<div style="display:flex; flex-direction:column; gap:15px;">';
-            config.links.forEach(link => {
-                let borderStyle = '';
-                let extraStyles = '';
-
-                if (config.design.btnRadius === 'neubrutalism') {
-                    borderStyle = `border: 2px solid ${config.design.textColor}; box-shadow: 4px 4px 0 ${config.design.textColor}; border-radius: 0;`;
-                } else {
-                    borderStyle = `border-radius: ${config.design.btnRadius}; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none;`;
-                }
-
-                // إضافة تأثير بسيط للمعانية لـ Motion Pro
-                if (config.design.theme === 'motion-pro') {
-                    extraStyles = 'transform: scale(0.98); opacity: 0.9;';
-                }
-
-                html += `
-                    <a href="${escapeHtml(link.url)}" target="_blank" style="
-                        background-color: ${config.design.linkBgColor};
-                        color: ${config.design.linkTextColor};
-                        padding: 16px;
-                        text-decoration: none;
-                        font-weight: bold;
-                        display: block;
-                        width: 90%;
-                        margin: 0 auto;
-                        transition: all 0.2s;
-                        ${borderStyle}
-                        ${extraStyles}
-                    ">${escapeHtml(link.title)}</a>
-                `;
-            });
-            html += '</div>';
-
-            els.preview.innerHTML = html;
-        }
-
-        // --- مزامنة UI مع Config ---
-        function syncUI() {
-            els.name.value = config.profile.name;
-            els.bio.value = config.profile.bio;
-
-            // الصورة: إذا كانت base64 (من رفع ملف)، لا تعرضها في حقل الرابط، فقط في زر الرفع
-            if (config.profile.avatar.startsWith('data:')) {
-                els.avatarUrlInput.value = '';
-                els.avatarBtnText.textContent = "✅ تم رفع الصورة بنجاح (رابط طويل)";
-            } else {
-                els.avatarUrlInput.value = config.profile.avatar;
-                els.avatarBtnText.textContent = "اختر صورة من جهازك 📁 (قد يطيل الرابط)";
-            }
-
-            // التواصل الاجتماعي
-            els.socialsList.innerHTML = '';
-            Object.keys(config.socials).forEach(key => {
-                const div = document.createElement('div');
-                div.className = 'form-group';
-                div.innerHTML = `<label style="text-transform:capitalize">${key}</label><input type="text" data-social="${key}" value="${config.socials[key]}" placeholder="${key === 'whatsapp' ? 'مثال: 201xxxxxxx' : 'username / url'}">`;
-                els.socialsList.appendChild(div);
+        // --- 2. إدارة المحرر (Editor Logic) ---
+        
+        function initEditor() {
+            // تفعيل السحب والإفلات للروابط
+            new Sortable(document.getElementById('links-container'), {
+                handle: '.handle', animation: 150, onEnd: updateConfigFromDOM
             });
 
-            // الروابط
-            renderLinksList();
+            // تحديث الواجهة
+            document.getElementById('p-name').value = config.profile.name;
+            document.getElementById('p-bio').value = config.profile.bio;
+            renderLinksInputs();
+            updatePreview();
 
-            // الألوان
-            els.colors.bg.value = config.design.bgColor.startsWith('#') ? config.design.bgColor : '#ffffff';
-            els.colors.linkBg.value = config.design.linkBgColor;
-            els.colors.linkText.value = config.design.linkTextColor;
-            els.colors.text.value = config.design.textColor;
-            els.theme.value = config.design.theme;
-            els.btnStyle.value = config.design.btnRadius;
-
-            renderPreview();
+            // زر اللغة
+            document.getElementById('lang-btn').onclick = toggleLang;
         }
 
-        function renderLinksList() {
-            // (باقي وظيفة renderLinksList بدون تغيير)
-            els.linksList.innerHTML = '';
-            config.links.forEach((link, idx) => {
+        function toggleSection(header) {
+            header.parentElement.classList.toggle('open');
+        }
+
+        function toggleLang() {
+            lang = lang === 'ar' ? 'en' : 'ar';
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('lang-btn').innerText = lang === 'ar' ? 'English' : 'العربية';
+            
+            // تحديث النصوص
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.innerText = translations[lang][el.dataset.i18n];
+            });
+            updatePreview(); // لتحديث لغة العرض
+        }
+
+        // --- معالجة الصور ---
+        function handleImageUpload(input, type) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // تحذير للحجم
+            if(file.size > 500 * 1024) { alert('⚠️ الصورة كبيرة جداً، يفضل أقل من 500KB لسرعة التحميل'); }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                config.profile[type] = e.target.result;
+                document.getElementById(`${type}-status`).innerText = '✅ تم الرفع';
+                updatePreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- إدارة الروابط ---
+        function renderLinksInputs() {
+            const container = document.getElementById('links-container');
+            container.innerHTML = '';
+            config.links.forEach((link, index) => {
                 const div = document.createElement('div');
                 div.className = 'link-item';
-                div.setAttribute('data-id', idx);
                 div.innerHTML = `
-                    <span class="drag-handle">☰</span>
-                    <div style="flex:1;">
-                        <input type="text" class="link-title" value="${escapeHtml(link.title)}" placeholder="العنوان" style="margin-bottom:5px;">
-                        <input type="url" class="link-url" value="${escapeHtml(link.url)}" placeholder="الرابط (https://...)">
+                    <span class="handle">☰</span>
+                    <div style="flex:1">
+                        <input type="text" value="${link.title}" placeholder="العنوان" oninput="updateLink(${index}, 'title', this.value)">
+                        <input type="text" value="${link.url}" placeholder="الرابط" style="margin-top:5px" oninput="updateLink(${index}, 'url', this.value)">
                     </div>
-                    <button class="btn btn-danger delete-btn">🗑️</button>
+                    <button class="btn-danger" onclick="removeLink(${index})">🗑️</button>
                 `;
-                els.linksList.appendChild(div);
+                container.appendChild(div);
             });
         }
 
-        // --- الاستماع للأحداث (Event Listeners) ---
-
-        // 1. النصوص الأساسية
-        [els.name, els.bio].forEach(el => el.addEventListener('input', () => {
-            config.profile[el.id === 'profile-name' ? 'name' : 'bio'] = el.value;
-            renderPreview();
-        }));
-
-        // 2. الصورة (رابط أو رفع)
-        els.avatarUrlInput.addEventListener('input', () => {
-            config.profile.avatar = els.avatarUrlInput.value || 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
-            els.avatarBtnText.textContent = "اختر صورة من جهازك 📁 (قد يطيل الرابط)";
-            els.avatarUpload.value = ''; // مسح الملف المرفوع إذا تم إدخال رابط
-            renderPreview();
-        });
-
-        els.avatarUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 500 * 1024) { 
-                    alert('⚠️ الصورة كبيرة جداً. يرجى اختيار صورة أقل من 500 كيلوبايت أو استخدم رابط خارجي.');
-                    e.target.value = '';
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    config.profile.avatar = event.target.result; // Base64
-                    els.avatarUrlInput.value = ''; // مسح حقل الرابط
-                    els.avatarBtnText.textContent = "✅ تم رفع الصورة بنجاح (رابط طويل)";
-                    renderPreview();
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // 3. التواصل الاجتماعي (نفس الكود)
-        els.socialsList.addEventListener('input', (e) => {
-            if(e.target.tagName === 'INPUT') {
-                config.socials[e.target.dataset.social] = e.target.value;
-                renderPreview();
-            }
-        });
-
-        // 4. الروابط (إضافة، حذف، تعديل، ترتيب) (نفس الكود)
-        els.addLink.addEventListener('click', () => {
-            config.links.push({ title: 'رابط جديد', url: '#' });
-            syncUI();
-        });
-
-        els.linksList.addEventListener('input', (e) => {
-            const idx = e.target.closest('.link-item').dataset.id;
-            if(e.target.classList.contains('link-title')) config.links[idx].title = e.target.value;
-            if(e.target.classList.contains('link-url')) config.links[idx].url = e.target.value;
-            renderPreview();
-        });
-
-        els.linksList.addEventListener('click', (e) => {
-            if(e.target.classList.contains('delete-btn') || e.target.parentElement.classList.contains('delete-btn')) {
-                const idx = e.target.closest('.link-item').dataset.id;
-                config.links.splice(idx, 1);
-                syncUI();
-            }
-        });
-
-        // تفعيل SortableJS للسحب والإفلات (نفس الكود)
-        new Sortable(els.linksList, {
-            handle: '.drag-handle',
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            onEnd: function (evt) {
-                const item = config.links.splice(evt.oldIndex, 1)[0];
-                config.links.splice(evt.newIndex, 0, item);
-                syncUI(); 
-            }
-        });
-
-        // 5. التصميم
-        els.theme.addEventListener('change', (e) => {
-            const t = themes[e.target.value];
-            if(t) {
-                config.design.theme = e.target.value;
-                config.design.bgColor = t.bg;
-                config.design.linkBgColor = t.lBg;
-                config.design.linkTextColor = t.lTxt;
-                config.design.textColor = t.txt;
-                config.design.btnRadius = t.btnRadius || '8px'; // يستخدم قيمة الثيم أو الافتراضي
-                syncUI();
-            }
-        });
-
-        Object.values(els.colors).forEach(input => {
-            input.addEventListener('input', () => {
-                config.design.bgColor = els.colors.bg.value;
-                config.design.linkBgColor = els.colors.linkBg.value;
-                config.design.linkTextColor = els.colors.linkText.value;
-                config.design.textColor = els.colors.text.value;
-                config.design.theme = 'custom'; // تحويل الثيم لمخصص
-                els.theme.value = 'custom';
-                renderPreview();
-            });
-        });
-
-        els.btnStyle.addEventListener('change', (e) => {
-            config.design.btnRadius = e.target.value;
-            renderPreview();
-        });
-
-        // --- الحفظ والتصدير ---
-
-        // وظيفة الحصول على الرابط الطويل (مكررة للاستخدام في Generate و Shorten)
-        function getLongUrl() {
-            const jsonString = JSON.stringify(config);
-            const compressed = LZString.compressToEncodedURIComponent(jsonString);
-            return `${window.location.origin}${window.location.pathname}#data=${compressed}`;
+        function addLink() {
+            config.links.push({ title: 'رابط جديد', url: '' });
+            renderLinksInputs();
+            updatePreview();
         }
 
-        // توليد الرابط الطويل مع QR Code
-        els.generate.addEventListener('click', () => {
-            const url = getLongUrl();
+        function removeLink(index) {
+            config.links.splice(index, 1);
+            renderLinksInputs();
+            updatePreview();
+        }
 
-            els.modal.input.value = url;
+        function updateLink(index, key, value) {
+            config.links[index][key] = value;
+            updatePreview(); // تحديث فوري
+        }
 
-            // توليد QR Code
-            els.modal.qr.innerHTML = ''; 
-            try {
-                new QRCode(els.modal.qr, {
-                    text: url,
-                    width: 128,
-                    height: 128,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-            } catch (e) {
-                 els.modal.qr.innerHTML = '<p style="color:red; font-weight:bold;">الرابط طويل جداً، لا يمكن توليد QR Code.</p>';
+        function updateConfigFromDOM() {
+            // يتم استدعاؤها بعد السحب والإفلات لترتيب المصفوفة
+            const items = document.querySelectorAll('.link-item');
+            const newLinks = [];
+            items.forEach(item => {
+                const title = item.querySelector('input[placeholder="العنوان"]').value;
+                const url = item.querySelector('input[placeholder="الرابط"]').value;
+                newLinks.push({ title, url });
+            });
+            config.links = newLinks;
+            updatePreview();
+        }
+
+        function updateConfig() {
+            config.profile.name = document.getElementById('p-name').value;
+            config.profile.bio = document.getElementById('p-bio').value;
+            config.design.template = document.getElementById('d-template').value;
+            config.design.theme = document.getElementById('d-theme').value;
+            config.design.customBg = document.getElementById('d-custom-bg').value;
+            updatePreview();
+        }
+
+        // --- 3. نظام المعاينة والتوليد (Core Rendering) ---
+        
+        function generateFullPageHTML(data) {
+            // هذه الدالة تولد كود HTML الكامل للصفحة النهائية
+            
+            const { profile, links, design } = data;
+            
+            // تحديد الألوان بناءً على الثيم
+            const themes = {
+                light: { bg: '#ffffff', text: '#333', btnBg: '#f3f4f6', btnText: '#000' },
+                dark: { bg: '#111827', text: '#f9fafb', btnBg: '#1f2937', btnText: '#fff' },
+                ocean: { bg: 'linear-gradient(to bottom, #e0f7fa, #80deea)', text: '#006064', btnBg: '#ffffff', btnText: '#00838f' },
+                sunset: { bg: 'linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%)', text: '#4a001f', btnBg: 'rgba(255,255,255,0.8)', btnText: '#d63384' }
+            };
+            
+            let currentTheme = themes[design.theme];
+            // تجاوز الخلفية إذا تم اختيار لون مخصص مع الثيم الفاتح
+            if(design.theme === 'light' && design.customBg !== '#f3f4f6') {
+                currentTheme.bg = design.customBg;
             }
 
-            els.modal.self.style.display = 'flex';
-        });
+            // CSS القوالب
+            let templateCSS = '';
+            let layoutHTML = '';
 
-        // تقصير الرابط (الجديد)
-        els.shorten.addEventListener('click', async () => {
-            const longUrl = getLongUrl();
+            const avatarHTML = profile.avatar ? `<img src="${profile.avatar}" class="avatar">` : `<div class="avatar" style="background:#ddd;display:flex;align-items:center;justify-content:center;font-size:30px;">👤</div>`;
+            const coverHTML = profile.cover ? `background-image: url('${profile.cover}');` : `background-color: var(--btn-bg);`;
 
-            if (longUrl.length > 2000) {
-                alert('⚠️ الرابط طويل جداً (طوله: ' + longUrl.length + ' حرف). لن تتمكن خدمات التقصير المجانية من معالجته. يرجى استخدام رابط صورة خارجي أو نسخ الرابط الطويل يدوياً.');
-                els.generate.click(); // الرجوع لفتح المودال بالرابط الطويل
-                return;
+            // بناء الروابط
+            const linksHTML = links.map(l => `
+                <a href="${l.url}" target="_blank" class="link-card">
+                    <span>${l.title}</span>
+                </a>
+            `).join('');
+
+            // --- منطق القوالب ---
+            
+            if (design.template === 'hero') {
+                // قالب البانر العريض
+                templateCSS = `
+                    .hero { height: 180px; width: 100%; background-size: cover; background-position: center; ${coverHTML} }
+                    .profile-container { margin-top: -60px; text-align: center; padding: 0 20px; }
+                    .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--bg); object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+                    .links-container { padding: 20px; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+                    .link-card { background: var(--btn-bg); color: var(--btn-text); padding: 18px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; display: block; }
+                    .link-card:hover { transform: translateY(-3px); }
+                `;
+                layoutHTML = `
+                    <div class="hero"></div>
+                    <div class="profile-container">
+                        ${avatarHTML}
+                        <h1>${profile.name}</h1>
+                        <p>${profile.bio}</p>
+                    </div>
+                    <div class="links-container">${linksHTML}</div>
+                `;
+
+            } else if (design.template === 'grid') {
+                // قالب الشبكة (Bento Grid)
+                templateCSS = `
+                    .container { max-width: 600px; margin: 40px auto; padding: 20px; text-align: center; }
+                    .avatar { width: 100px; height: 100px; border-radius: 25%; object-fit: cover; margin-bottom: 15px; }
+                    .links-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
+                    .link-card { background: var(--btn-bg); color: var(--btn-text); padding: 30px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; justify-content: center; text-align: center; aspect-ratio: 1/1; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.3s; }
+                    .link-card:hover { transform: scale(1.03); }
+                `;
+                layoutHTML = `
+                    <div class="container">
+                        ${avatarHTML}
+                        <h1>${profile.name}</h1>
+                        <p>${profile.bio}</p>
+                        <div class="links-container">${linksHTML}</div>
+                    </div>
+                `;
+
+            } else if (design.template === 'glass') {
+                // قالب زجاجي
+                templateCSS = `
+                    body { background: url('https://source.unsplash.com/random/1920x1080/?abstract,gradient') no-repeat center center fixed; background-size: cover; }
+                    .container { max-width: 500px; margin: 60px auto; padding: 40px 30px; text-align: center; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); color: #fff; }
+                    .avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.5); }
+                    .link-card { background: rgba(255, 255, 255, 0.25); color: #fff; margin-top: 15px; padding: 15px; border-radius: 12px; text-decoration: none; display: block; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
+                    .link-card:hover { background: rgba(255, 255, 255, 0.4); }
+                    h1, p { color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+                `;
+                // هنا نتجاهل ألوان الثيم لأن القالب له خلفية خاصة
+                currentTheme.bg = 'transparent'; 
+                layoutHTML = `
+                    <div class="container">
+                        ${avatarHTML}
+                        <h1>${profile.name}</h1>
+                        <p>${profile.bio}</p>
+                        <div class="links-container">${linksHTML}</div>
+                    </div>
+                `;
+
+            } else {
+                // الكلاسيكي
+                templateCSS = `
+                    .container { max-width: 500px; margin: 50px auto; padding: 20px; text-align: center; }
+                    .avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; }
+                    .links-container { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
+                    .link-card { background: var(--btn-bg); color: var(--btn-text); padding: 16px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 1px solid rgba(0,0,0,0.05); transition: 0.2s; display: block; }
+                    .link-card:hover { opacity: 0.9; }
+                `;
+                layoutHTML = `
+                    <div class="container">
+                        ${avatarHTML}
+                        <h1>${profile.name}</h1>
+                        <p>${profile.bio}</p>
+                        <div class="links-container">${linksHTML}</div>
+                    </div>
+                `;
             }
 
-            const originalText = els.shorten.innerText;
-            els.shorten.innerText = "جاري التقصير... ⏳";
-            els.shorten.disabled = true;
+            // تجميع الملف النهائي
+            return `
+<!DOCTYPE html>
+<html dir="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${profile.name}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: ${currentTheme.bg};
+            --text: ${currentTheme.text};
+            --btn-bg: ${currentTheme.btnBg};
+            --btn-text: ${currentTheme.btnText};
+        }
+        body { margin: 0; font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        h1 { margin: 10px 0 5px; font-size: 24px; }
+        p { margin: 0 0 20px; opacity: 0.8; font-size: 14px; }
+        ${templateCSS}
+    </style>
+</head>
+<body>
+    ${layoutHTML}
+</body>
+</html>`;
+        }
 
-            try {
-                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+        function updatePreview() {
+            const html = generateFullPageHTML(config);
+            const frame = document.getElementById('preview-frame');
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open();
+            doc.write(html);
+            doc.close();
+        }
 
-                if (response.ok) {
-                    const shortUrl = await response.text();
+        // --- 4. التصدير والمشاركة ---
 
-                    els.modal.input.value = shortUrl;
-                    els.modal.qr.innerHTML = '';
-                    new QRCode(els.modal.qr, { text: shortUrl, width: 128, height: 128 });
+        function generateShareLink() {
+            // ضغط البيانات في الرابط
+            const json = JSON.stringify(config);
+            const compressed = LZString.compressToEncodedURIComponent(json);
+            const url = `${window.location.origin}${window.location.pathname}#data=${compressed}`;
+            
+            document.getElementById('share-url').value = url;
+            
+            // QR Code
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, { text: url, width: 128, height: 128 });
+            
+            document.getElementById('share-modal').style.display = 'flex';
+        }
 
-                    els.modal.self.style.display = 'flex';
-                    showToast("تم تقصير الرابط بنجاح! 🎉");
-                } else {
-                    throw new Error('فشل الاتصال بالخدمة');
-                }
-            } catch (error) {
-                console.error(error);
-                alert("عذراً، حدث خطأ في تقصير الرابط. تم فتح نافذة الرابط الطويل كبديل.");
-                els.generate.click(); 
-            } finally {
-                els.shorten.innerText = originalText;
-                els.shorten.disabled = false;
-            }
-        });
-
-
-        els.modal.copy.addEventListener('click', () => {
-            els.modal.input.select();
-            document.execCommand('copy');
-            showToast("تم نسخ الرابط بنجاح! 🎉");
-        });
-
-        els.modal.close.addEventListener('click', () => {
-            els.modal.self.style.display = 'none';
-        });
-
-        // تحميل ملف HTML ثابت (نفس الكود)
-        els.download.addEventListener('click', () => {
-            const finalHTML = generateFinalHTML(config);
-            const blob = new Blob([finalHTML], { type: 'text/html' });
+        function downloadHTML() {
+            const html = generateFullPageHTML(config);
+            const blob = new Blob([html], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `index-${Date.now()}.html`;
+            a.download = 'my-links.html';
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast("جاري تحميل الملف... 📥");
-        });
+        }
 
-        // بدء التطبيق
-        syncUI();
-    }
+        function copyLink() {
+            const copyText = document.getElementById("share-url");
+            copyText.select();
+            document.execCommand("copy");
+            alert("تم نسخ الرابط! 🎉");
+        }
 
-    // --- توليد كود الصفحة النهائية (Standalone) ---
-    function generateFinalHTML(data) {
-        const safeName = escapeHtml(data.profile.name);
-        const safeBio = escapeHtml(data.profile.bio);
-        const safeAvatar = escapeHtml(data.profile.avatar);
-        const theme = data.design.theme;
-
-        // أيقونات للتصدير (مضمنة داخل الدالة لتكون مستقلة)
-        const svgs = {
-            twitter: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-            instagram: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.85s.012-3.584.07-4.85c.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a3.999 3.999 0 110-7.998 3.999 3.999 0 010 7.998z"/></svg>',
-            facebook: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>',
-            linkedin: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>',
-            whatsapp: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>'
+        // --- 5. التشغيل الأولي (Router) ---
+        
+        window.onload = function() {
+            if (window.location.hash.startsWith('#data=')) {
+                // وضع العرض (المشاهد)
+                try {
+                    const compressed = window.location.hash.substring(6);
+                    const json = LZString.decompressFromEncodedURIComponent(compressed);
+                    const data = JSON.parse(json);
+                    
+                    document.body.classList.add('render-mode');
+                    document.body.innerHTML = generateFullPageHTML(data);
+                } catch (e) {
+                    console.error(e);
+                    alert("رابط غير صالح أو تالف");
+                    window.location.hash = "";
+                    location.reload();
+                }
+            } else {
+                // وضع التعديل (Editor)
+                initEditor();
+            }
         };
 
-        let socialHTML = '';
-        for (const [key, val] of Object.entries(data.socials)) {
-            if (val && svgs[key]) {
-                 let href = val;
-                if (key === 'whatsapp' && !val.startsWith('http')) href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-                else if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
-                socialHTML += `<a href="${escapeHtml(href)}" target="_blank" class="social-icon">${svgs[key]}</a>`;
-            }
-        }
-
-        // إخفاء الصورة في Simple Pro
-        const avatarDisplay = theme === 'simple-pro' ? 'display: none;' : '';
-        const avatarMargin = theme === 'simple-pro' ? '' : `<img src="${safeAvatar}" alt="${safeName}" class="avatar">`;
-
-        let linksHTML = data.links.map(link => {
-             let borderStyle = data.design.btnRadius === 'neubrutalism' 
-                    ? `border: 2px solid ${data.design.textColor}; box-shadow: 4px 4px 0 ${data.design.textColor}; border-radius: 0;` 
-                    : `border-radius: ${data.design.btnRadius}; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none;`;
-
-            return `<a href="${escapeHtml(link.url)}" target="_blank" class="link-btn" style="background-color:${data.design.linkBgColor}; color:${data.design.linkTextColor}; ${borderStyle}">${escapeHtml(link.title)}</a>`;
-        }).join('');
-
-        // إضافة CSS خاص بالـ Motion Pro
-        let motionProCSS = '';
-        if (theme === 'motion-pro') {
-            motionProCSS = `
-                .link-btn:hover {
-                    transform: translateY(-5px) scale(1.02);
-                    filter: brightness(1.1);
-                    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-                }
-                .social-icon:hover {
-                    transform: scale(1.3) rotate(5deg);
-                }
-            `;
-        }
-
-
-        return `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${safeName} | Links</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-    body { font-family: 'Cairo', sans-serif; margin: 0; padding: 40px 20px; min-height: 100vh; background: ${data.design.bgColor}; color: ${data.design.textColor}; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-    .container { width: 100%; max-width: 600px; text-align: center; }
-    .avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 15px; ${avatarDisplay} }
-    .name { font-size: 26px; font-weight: 900; margin: 0 0 10px; }
-    .bio { font-size: 16px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6; }
-    .socials { display: flex; justify-content: center; gap: 18px; margin-bottom: 30px; }
-    .social-icon { color: inherit; transition: transform 0.3s ease; display: inline-block; }
-    .social-icon:hover { transform: scale(1.15); }
-    .link-btn { display: block; width: 100%; padding: 18px; margin-bottom: 15px; text-decoration: none; font-weight: 700; font-size: 18px; box-sizing: border-box; transition: transform 0.3s, filter 0.3s; }
-    .link-btn:hover { filter: brightness(0.95); }
-    ${motionProCSS}
-</style>
-</head>
-<body>
-    <div class="container">
-        ${avatarMargin}
-        <h1 class="name">${safeName}</h1>
-        <p class="bio">${safeBio}</p>
-        <div class="socials">${socialHTML}</div>
-        <div class="links">${linksHTML}</div>
-    </div>
-</body>
-</html>`;
-    }
     </script>
 </body>
 </html>
