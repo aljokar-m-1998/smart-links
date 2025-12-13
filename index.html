@@ -1,536 +1,908 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Page Builder Pro</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <style>
-        /* --- متغيرات الألوان --- */
-        :root {
-            --primary: #4f46e5;
-            --bg-editor: #f3f4f6;
-            --bg-panel: #ffffff;
-            --border: #e5e7eb;
-            --text-main: #1f2937;
-        }
-
-        body { margin: 0; font-family: 'Cairo', sans-serif; background: var(--bg-editor); height: 100vh; overflow: hidden; }
-        
-        /* وضع العرض النهائي (عند فتح الرابط) */
-        body.render-mode { height: auto; overflow: auto; background: #fff; }
-        #app-editor { display: flex; height: 100%; }
-        body.render-mode #app-editor { display: none; }
-
-        /* --- لوحة التحكم --- */
-        .editor-panel {
-            width: 400px; background: var(--bg-panel); border-left: 1px solid var(--border);
-            display: flex; flex-direction: column; height: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.05);
-            z-index: 10;
-        }
-        .editor-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .editor-content { flex: 1; overflow-y: auto; padding: 20px; }
-        .editor-footer { padding: 15px; border-top: 1px solid var(--border); background: #f9fafb; }
-
-        /* الأقسام */
-        .section { background: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
-        .section-header { padding: 12px 15px; background: #f8f9fa; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; }
-        .section-body { padding: 15px; display: none; }
-        .section.open .section-body { display: block; }
-
-        /* عناصر النموذج */
-        .form-group { margin-bottom: 12px; }
-        label { display: block; font-size: 13px; margin-bottom: 5px; color: #555; }
-        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
-        
-        .upload-box { border: 2px dashed #ddd; padding: 15px; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s; position: relative; }
-        .upload-box:hover { border-color: var(--primary); background: #f0f4ff; }
-        .upload-box input { position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0; cursor: pointer; }
-
-        /* --- لوحة المعاينة --- */
-        .preview-panel { flex: 1; display: flex; justify-content: center; align-items: center; background: #eef2f6; position: relative; }
-        .phone-mockup {
-            width: 360px; height: 750px; background: #fff; border-radius: 35px; border: 10px solid #222;
-            overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        }
-        .preview-iframe { width: 100%; height: 100%; border: none; background: #fff; overflow-y: auto; }
-
-        /* --- الروابط --- */
-        .link-item { background: #fff; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; border-radius: 6px; display: flex; gap: 8px; align-items: center; }
-        .handle { cursor: grab; color: #aaa; font-size: 20px; }
-        .btn { border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; width: 100%; margin-bottom: 5px; }
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-secondary { background: #6b7280; color: #fff; }
-        .btn-danger { background: #fee2e2; color: #dc2626; width: auto; padding: 5px 10px; }
-
-        /* --- Modal --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; }
-        
-        /* RTL support */
-        html[dir="ltr"] .editor-panel { border-left: none; border-right: 1px solid var(--border); }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M.H • English Sentences Game</title>
+<style>
+  :root{
+    --bg:#0f1216;--panel:#151a21;--card:#1b212a;--text:#e7edf3;--muted:#9aa6b2;
+    --brand:#3dd6c3;--accent:#7aa3ff;--danger:#ff6b6b;--ok:#31d0aa;--warn:#f4c96b;
+    --border:#26303b;--ghost:#202733;--focus:#3dd6c34d;
+    --bg-light:#f5f7fa;--panel-light:#ffffff;--card-light:#f9fafc;--text-light:#151922;--muted-light:#4a5160;--border-light:#d7dbe0;--ghost-light:#eef1f5;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:linear-gradient(180deg, #0a0d11, var(--bg));
+    color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    transition:background .25s ease,color .25s ease
+  }
+  body.light{
+    background:linear-gradient(180deg, #f0f2f6, var(--bg-light));
+    color:var(--text-light)
+  }
+  a{color:inherit;text-decoration:none}
+  button{cursor:pointer;background:var(--ghost);color:var(--text);border:1px solid var(--border);
+    border-radius:10px;padding:.65rem .9rem;font-weight:600;transition:transform .12s ease, box-shadow .2s ease, opacity .2s ease}
+  body.light button{background:var(--ghost-light);color:var(--text-light);border-color:var(--border-light)}
+  button:active{transform:scale(.98)}
+  button.ghost{background:transparent}
+  button.primary{background:var(--accent);color:#0b1020;border-color:transparent}
+  button.success{background:var(--ok);color:#061915;border-color:transparent}
+  button.warn{background:var(--warn);color:#231a06;border-color:transparent}
+  button.danger{background:var(--danger);color:#1a0606;border-color:transparent}
+  button.icon{display:flex;align-items:center;gap:.5rem}
+  button.nohover:hover{background:transparent;color:inherit}
+  header{
+    position:sticky;top:0;z-index:50;background:rgba(16,20,26,.85);backdrop-filter:saturate(140%) blur(12px);
+    border-bottom:1px solid var(--border)
+  }
+  body.light header{background:rgba(255,255,255,.85);border-color:var(--border-light)}
+  .wrap{max-width:1120px;margin:0 auto;padding:1rem}
+  .brandbar{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .brand{display:flex;align-items:center;gap:.9rem}
+  .mh{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg, var(--brand), #8af5e7);
+    color:#0b1a17;font-weight:900;letter-spacing:.5px;border:2px solid #0b1a17;box-shadow:0 8px 24px #3dd6c344
+  }
+  .title h1{margin:0;font-size:1.3rem}
+  .title p{margin:.2rem 0 0;color:var(--muted);font-size:.9rem}
+  body.light .title p{color:var(--muted-light)}
+  .actions{display:flex;flex-wrap:wrap;gap:.5rem}
+  main{padding:1rem}
+  .grid{display:grid;gap:1rem;grid-template-columns:1fr}
+  @media(min-width:900px){.grid{grid-template-columns: 1.1fr .9fr}}
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem;box-shadow:0 8px 24px rgba(0,0,0,.25)
+  }
+  body.light .card{background:var(--card-light);border-color:var(--border-light);box-shadow:0 10px 24px rgba(0,0,0,.08)}
+  .card h3{margin:0 0 .8rem;font-size:1.05rem}
+  .set-row{display:grid;gap:.6rem;grid-template-columns:1fr 1fr}
+  .set-item{display:flex;flex-direction:column;gap:.4rem}
+  .seg{display:flex;flex-wrap:wrap;gap:.5rem}
+  select,input[type="number"],input[type="text"],input[type="range"]{
+    background:#12161c;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;outline:none
+  }
+  body.light select,body.light input[type="number"],body.light input[type="text"],body.light input[type="range"]{background:#ffffff;color:var(--text-light);border-color:var(--border-light)}
+  select:focus,input:focus{box-shadow:0 0 0 3px var(--focus)}
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:.6rem;text-align:center}
+  body.light .stat{background:var(--panel-light);border-color:var(--border-light)}
+  .stat b{display:block;font-size:.8rem;color:var(--muted)}
+  body.light .stat b{color:var(--muted-light)}
+  .stat span{font-size:1.15rem;font-weight:800}
+  .progress{margin-top:.7rem;height:10px;background:#10151b;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+  body.light .progress{background:#eef1f5;border-color:var(--border-light)}
+  .progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg, var(--brand), var(--accent))}
+  .top-progress{position:sticky;top:60px;height:4px;background:#0d1217}
+  body.light .top-progress{background:#e7eaf0}
+  .top-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg, var(--brand), var(--accent))}
+  .game{min-height:240px;display:flex;flex-direction:column;gap:1rem}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1rem}
+  body.light .panel{background:var(--panel-light);border-color:var(--border-light)}
+  .fade-enter{opacity:.01;transform:translateY(6px)}
+  .fade-enter.fade-enter-active{opacity:1;transform:none;transition:opacity .22s ease, transform .22s ease}
+  .pill{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .6rem;border-radius:999px;background:#0f141a;border:1px solid var(--border);color:var(--muted);font-size:.8rem}
+  body.light .pill{background:#f7f9fb;border-color:var(--border-light);color:var(--muted-light)}
+  .options{display:grid;gap:.5rem}
+  .options button{justify-content:flex-start}
+  .row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .space{flex:1}
+  .note{color:var(--muted);font-size:.92rem}
+  body.light .note{color:var(--muted-light)}
+  .error{color:var(--danger)}
+  .ok{color:var(--ok)}
+  .list{display:flex;flex-direction:column;gap:.6rem;max-height:320px;overflow:auto}
+  .footer{margin-top:.6rem;color:var(--muted);font-size:.85rem}
+  .badge{padding:.25rem .5rem;border-radius:7px;background:#0e151c;border:1px solid var(--border);font-size:.8rem}
+  body.light .badge{background:#eef1f5;border-color:var(--border-light)}
+  .chip{padding:.25rem .5rem;border-radius:999px;background:#0f141a;border:1px solid var(--border);font-size:.8rem}
+  body.light .chip{background:#f7f9fb;border-color:var(--border-light)}
+  .center{display:flex;align-items:center;justify-content:center}
+  .correct{background:var(--ok)!important;color:#07140f!important;border-color:transparent!important}
+  .wrong{background:var(--danger)!important;color:#1a0606!important;border-color:transparent!important}
+</style>
 </head>
 <body>
-
-    <div id="app-editor">
-        <div class="editor-panel">
-            <div class="editor-header">
-                <h3>Link Builder 🚀</h3>
-                <button id="lang-btn" class="btn-secondary" style="width: auto; padding: 5px 10px; font-size: 12px;">English</button>
-            </div>
-            
-            <div class="editor-content">
-                
-                <div class="section open">
-                    <div class="section-header" onclick="toggleSection(this)">👤 <span data-i18n="sec_profile">الملف الشخصي</span></div>
-                    <div class="section-body">
-                        <div class="form-group">
-                            <label data-i18n="lbl_name">الاسم</label>
-                            <input type="text" id="p-name" oninput="updateConfig()">
-                        </div>
-                        <div class="form-group">
-                            <label data-i18n="lbl_bio">نبذة (Bio)</label>
-                            <textarea id="p-bio" rows="2" oninput="updateConfig()"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label data-i18n="lbl_avatar">الصورة الرمزية</label>
-                            <div class="upload-box">
-                                <span id="avatar-status">📂 اضغط لرفع صورة</span>
-                                <input type="file" accept="image/*" onchange="handleImageUpload(this, 'avatar')">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label data-i18n="lbl_cover">صورة الغلاف (Banner)</label>
-                            <div class="upload-box" style="border-style: solid; background: #fafafa;">
-                                <span id="cover-status">🖼️ اضغط لرفع غلاف (للقالب العريض)</span>
-                                <input type="file" accept="image/*" onchange="handleImageUpload(this, 'cover')">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-header" onclick="toggleSection(this)">🔗 <span data-i18n="sec_links">الروابط</span></div>
-                    <div class="section-body">
-                        <div id="links-container"></div>
-                        <button class="btn btn-primary" onclick="addLink()" data-i18n="btn_add_link">+ رابط جديد</button>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-header" onclick="toggleSection(this)">🎨 <span data-i18n="sec_design">التصميم</span></div>
-                    <div class="section-body">
-                        <div class="form-group">
-                            <label data-i18n="lbl_template">القالب</label>
-                            <select id="d-template" onchange="updateConfig()">
-                                <option value="classic">الكلاسيكي (Classic)</option>
-                                <option value="hero">البانر العريض (Hero)</option>
-                                <option value="grid">شبكة مربعات (Bento Grid)</option>
-                                <option value="glass">زجاجي شفاف (Glassmorphism)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label data-i18n="lbl_theme">لوحة الألوان</label>
-                            <select id="d-theme" onchange="updateConfig()">
-                                <option value="light">فاتح (Light)</option>
-                                <option value="dark">داكن (Dark)</option>
-                                <option value="ocean">محيط أزرق (Ocean)</option>
-                                <option value="sunset">غروب الشمس (Sunset)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                             <label>تخصيص لون الخلفية</label>
-                             <input type="color" id="d-custom-bg" oninput="updateConfig()" value="#f3f4f6">
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="editor-footer">
-                <button class="btn btn-primary" onclick="generateShareLink()" data-i18n="btn_share">حفظ ومشاركة 🔗</button>
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="btn btn-secondary" onclick="downloadHTML()" data-i18n="btn_download">تحميل HTML 📥</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="preview-panel">
-            <div class="phone-mockup">
-                <iframe id="preview-frame" class="preview-iframe"></iframe>
-            </div>
-        </div>
+<header>
+  <div class="wrap brandbar">
+    <div class="brand">
+      <div class="mh">M.H</div>
+      <div class="title">
+        <h1 id="appTitle">لعبة الجمل الإنجليزية</h1>
+        <p>Mobile-first • Offline-ready • Modular</p>
+      </div>
     </div>
-
-    <div id="share-modal" class="modal">
-        <div class="modal-content">
-            <h3>جاهز للمشاركة! 🎉</h3>
-            <div id="qrcode" style="margin: 20px auto; display: flex; justify-content: center;"></div>
-            <input type="text" id="share-url" readonly style="width: 100%; margin-bottom: 10px; direction: ltr;">
-            <button class="btn btn-primary" onclick="copyLink()">نسخ الرابط</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('share-modal').style.display='none'" style="margin-top: 10px;">إغلاق</button>
-        </div>
+    <div class="actions">
+      <button id="langBtn" class="ghost nohover icon"><span>🌐</span><span id="langLabel">العربية</span></button>
+      <button id="themeBtn" class="icon"><span>🌓</span><span id="themeLabel">المظهر</span></button>
+      <button id="ttsTest" class="icon"><span>🔊</span><span id="ttsLabel">اختبار النطق</span></button>
+      <button id="resetBtn" class="danger icon"><span>↺</span><span id="resetLabel">إعادة الضبط</span></button>
+      <input type="file" id="jsonLoader" accept=".json" style="display:none">
+      <button id="loadJsonBtn" class="icon"><span>📂</span><span id="loadJsonLabel">تحميل JSON</span></button>
     </div>
+  </div>
+  <div class="top-progress"><i id="topProgressBar"></i></div>
+</header>
 
-    <script>
-        // --- 1. إعدادات اللغة والبيانات ---
-        let lang = 'ar';
-        const translations = {
-            ar: {
-                sec_profile: 'الملف الشخصي', lbl_name: 'الاسم', lbl_bio: 'نبذة', lbl_avatar: 'الصورة الرمزية', lbl_cover: 'صورة الغلاف (Banner)',
-                sec_links: 'الروابط', btn_add_link: '+ إضافة رابط',
-                sec_design: 'التصميم', lbl_template: 'القالب', lbl_theme: 'الألوان',
-                btn_share: 'حفظ ومشاركة 🔗', btn_download: 'تحميل ملف HTML 📥'
-            },
-            en: {
-                sec_profile: 'Profile', lbl_name: 'Name', lbl_bio: 'Bio', lbl_avatar: 'Avatar', lbl_cover: 'Cover Image',
-                sec_links: 'Links', btn_add_link: '+ Add Link',
-                sec_design: 'Design', lbl_template: 'Template', lbl_theme: 'Color Theme',
-                btn_share: 'Save & Share 🔗', btn_download: 'Download HTML 📥'
-            }
-        };
+<main class="wrap">
+  <div class="grid">
+    <section class="card">
+      <h3 id="settingsTitle">الإعدادات</h3>
+      <div class="set-row">
+        <div class="set-item">
+          <b id="modeLabel">الوضع</b>
+          <div class="seg" id="modeSeg"></div>
+        </div>
+        <div class="set-item">
+          <b id="orderLabel">الترتيب</b>
+          <div class="seg" id="orderSeg"></div>
+        </div>
+      </div>
+      <div class="set-row" style="margin-top:.6rem">
+        <div class="set-item">
+          <b id="levelLabel">المستوى</b>
+          <select id="levelSel">
+            <option value="All">All</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+          </select>
+        </div>
+        <div class="set-item">
+          <b id="topicLabel">الموضوع</b>
+          <select id="topicSel"><option value="All">All</option></select>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:.8rem">
+        <div class="row">
+          <span class="note" id="loadNote">يتم تحميل البيانات...</span>
+          <span class="space"></span>
+          <span id="loadCount" class="badge">0</span>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:.8rem">
+        <div class="stats">
+          <div class="stat"><b id="totalLabel">المجموع</b><span id="statTotal">0</span></div>
+          <div class="stat"><b id="correctLabel">الصحيح</b><span id="statCorrect">0</span></div>
+          <div class="stat"><b id="streakLabel">سلسلة</b><span id="statStreak">0</span></div>
+          <div class="stat"><b id="seenLabel">المشاهدات</b><span id="statSeen">0</span></div>
+          <div class="stat"><b id="favLabel">المفضلة</b><span id="statFav">0</span></div>
+        </div>
+        <div class="progress"><i id="progressBar"></i></div>
+      </div>
+      <div class="panel" style="margin-top:.8rem">
+        <div class="row">
+          <b id="challengeTitle">التحديات</b>
+          <span class="space"></span>
+          <label class="chip"><span id="challengeLevelLabel">المستوى</span>
+            <select id="challengeLevel" style="margin-inline-start:.4rem">
+              <option value="All">All</option>
+              <option value="A1">A1</option><option value="A2">A2</option>
+              <option value="B1">B1</option><option value="B2">B2</option><option value="C1">C1</option>
+            </select>
+          </label>
+          <label class="chip"><span id="challengeCountLabel">العدد</span>
+            <input id="challengeCount" type="number" min="1" max="50" value="10" style="width:80px;margin-inline-start:.4rem">
+          </label>
+          <button id="startChallenge" class="primary icon"><span>🏁</span><span id="startChallengeLabel">ابدأ</span></button>
+        </div>
+        <div class="footer" id="challengeStatus">جاهز</div>
+      </div>
+      <div class="panel" style="margin-top:.8rem">
+        <div class="row">
+          <b id="audioTitle">إعدادات الصوت</b>
+          <span class="space"></span>
+          <label class="chip"><span id="voiceLabel">الصوت</span>
+            <select id="voiceSel" style="margin-inline-start:.4rem"></select>
+          </label>
+          <label class="chip"><span id="rateLabel">السرعة</span>
+            <input id="rateRange" type="range" min="0.6" max="1.4" step="0.1" value="1" style="width:120px;margin-inline-start:.4rem">
+          </label>
+          <label class="chip"><span id="repeatLabel">التكرار</span>
+            <input id="repeatRange" type="range" min="1" max="3" step="1" value="1" style="width:120px;margin-inline-start:.4rem">
+          </label>
+        </div>
+      </div>
+    </section>
 
-        // البيانات الافتراضية
-        let config = {
-            profile: { name: 'اسمك هنا', bio: 'مرحباً بك في صفحتي الخاصة', avatar: '', cover: '' },
-            links: [{ title: 'موقعي الإلكتروني 🌐', url: 'https://google.com' }],
-            design: { template: 'classic', theme: 'light', customBg: '#f3f4f6' }
-        };
+    <section class="card">
+      <h3 id="gameTitle">منطقة اللعبة</h3>
+      <div id="gameArea" class="game"></div>
+      <div class="panel">
+        <b id="historyTitle">سجل التحديات</b>
+        <div id="historyList" class="list"></div>
+      </div>
+    </section>
+  </div>
+</main>
 
-        // --- 2. إدارة المحرر (Editor Logic) ---
-        
-        function initEditor() {
-            // تفعيل السحب والإفلات للروابط
-            new Sortable(document.getElementById('links-container'), {
-                handle: '.handle', animation: 150, onEnd: updateConfigFromDOM
-            });
+<script>
+  const I18N = {
+    ar:{
+      appTitle:"لعبة الجمل الإنجليزية", langLabel:"العربية", ttsLabel:"اختبار النطق", resetLabel:"إعادة الضبط",
+      settingsTitle:"الإعدادات", modeLabel:"الوضع", orderLabel:"الترتيب", levelLabel:"المستوى", topicLabel:"الموضوع",
+      loadNote_loading:"يتم تحميل البيانات...", loadNote_ok:"تم التحميل بنجاح", loadNote_fail:"تعذر تحميل البيانات المحلية",
+      totalLabel:"المجموع", correctLabel:"الصحيح", streakLabel:"سلسلة", seenLabel:"المشاهدات", favLabel:"المفضلة",
+      challengeTitle:"التحديات", challengeLevelLabel:"المستوى", challengeCountLabel:"العدد", startChallengeLabel:"ابدأ",
+      challengeReady:"جاهز", challengeRunning:"تحدي جارٍ", challengeDone:"اكتمل التحدي",
+      gameTitle:"منطقة اللعبة", historyTitle:"سجل التحديات",
+      audioTitle:"إعدادات الصوت", voiceLabel:"الصوت", rateLabel:"السرعة", repeatLabel:"التكرار",
+      modes:["Study","MCQ","Typing","Listen","Mix"],
+      orders:["Sequential","Shuffle","Least Seen"],
+      study_en:"الجملة الإنجليزية", study_ar:"الترجمة العربية",
+      speak:"نطق", favorite:"مفضلة", next:"التالي",
+      choose_correct:"اختر الترجمة الصحيحة",
+      type_english:"اكتب الجملة الإنجليزية هنا",
+      listen_instructions:"استمع للنطق ثم اختر الترجمة الصحيحة",
+      tts_ready:"النطق جاهز", tts_not_ready:"لا توجد أصوات إنجليزية متاحة، سيتم استخدام الافتراضي",
+      reset_confirm:"هل تريد مسح جميع البيانات؟", reset_done:"تمت إعادة الضبط",
+      empty_data:"لا توجد بيانات معروضة حالياً",
+      challenge_progress:"تقدم التحدي",
+      correct:"صحيح", wrong:"خطأ",
+      seen_badge:"مشاهدات", level_badge:"المستوى", topic_badge:"الموضوع",
+      themeLabel:"المظهر", loadJsonLabel:"تحميل JSON",
+      replace_merge_prompt:"هل تريد استبدال البيانات أم دمجها؟ اختر OK للاستبدال وCancel للدمج.",
+    },
+    en:{
+      appTitle:"English Sentences Game", langLabel:"English", ttsLabel:"TTS Test", resetLabel:"Reset",
+      settingsTitle:"Settings", modeLabel:"Mode", orderLabel:"Order", levelLabel:"Level", topicLabel:"Topic",
+      loadNote_loading:"Loading data...", loadNote_ok:"Loaded successfully", loadNote_fail:"Failed to load local data",
+      totalLabel:"Total", correctLabel:"Correct", streakLabel:"Streak", seenLabel:"Seen", favLabel:"Favorites",
+      challengeTitle:"Challenges", challengeLevelLabel:"Level", challengeCountLabel:"Count", startChallengeLabel:"Start",
+      challengeReady:"Ready", challengeRunning:"Challenge running", challengeDone:"Challenge completed",
+      gameTitle:"Game area", historyTitle:"Challenge history",
+      audioTitle:"Audio settings", voiceLabel:"Voice", rateLabel:"Rate", repeatLabel:"Repeat",
+      modes:["Study","MCQ","Typing","Listen","Mix"],
+      orders:["Sequential","Shuffle","Least Seen"],
+      study_en:"English sentence", study_ar:"Arabic translation",
+      speak:"Speak", favorite:"Favorite", next:"Next",
+      choose_correct:"Choose the correct translation",
+      type_english:"Type the English sentence here",
+      listen_instructions:"Listen, then choose the correct translation",
+      tts_ready:"TTS ready", tts_not_ready:"No English voices available, fallback will be used",
+      reset_confirm:"Do you want to clear all data?", reset_done:"Reset complete",
+      empty_data:"No data to show yet",
+      challenge_progress:"Challenge progress",
+      correct:"Correct", wrong:"Wrong",
+      seen_badge:"Seen", level_badge:"Level", topic_badge:"Topic",
+      themeLabel:"Theme", loadJsonLabel:"Load JSON",
+      replace_merge_prompt:"Replace data or merge? OK = Replace, Cancel = Merge."
+    }
+  };
 
-            // تحديث الواجهة
-            document.getElementById('p-name').value = config.profile.name;
-            document.getElementById('p-bio').value = config.profile.bio;
-            renderLinksInputs();
-            updatePreview();
+  const store = {
+    get(k, def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def}catch{ return def}},
+    set(k, v){localStorage.setItem(k, JSON.stringify(v))},
+    del(k){localStorage.removeItem(k)}
+  };
 
-            // زر اللغة
-            document.getElementById('lang-btn').onclick = toggleLang;
+  const KEYS = {
+    settings:"mh_settings",
+    progress:"mh_progress",
+    seen:"mh_seen",
+    favs:"mh_favs",
+    history:"mh_challenges",
+    lang:"mh_lang",
+    theme:"mh_theme",
+    audio:"mh_audio"
+  };
+
+  const state = {
+    lang: store.get(KEYS.lang, "ar"),
+    theme: store.get(KEYS.theme, "dark"),
+    voices:[],
+    voice:null,
+    audio: store.get(KEYS.audio, {rate:1, repeat:1}),
+    data:[],
+    filtered:[],
+    topics:["All"],
+    index:0,
+    current:null,
+    settings: store.get(KEYS.settings, {mode:"Study", order:"Sequential", level:"All", topic:"All"}),
+    progress: store.get(KEYS.progress, {total:0, correct:0, streak:0, seen:0}),
+    seenMap: store.get(KEYS.seen, {}),
+    favs: new Set(store.get(KEYS.favs, [])),
+    challenge:{ active:false, level:"All", total:0, current:0, correct:0, list:[] },
+    history: store.get(KEYS.history, [])
+  };
+
+  const $ = sel => document.querySelector(sel);
+
+  function applyLang(){
+    const t = I18N[state.lang];
+    document.documentElement.lang = state.lang;
+    document.documentElement.dir = (state.lang==="ar")?"rtl":"ltr";
+    $("#appTitle").textContent = t.appTitle;
+    $("#langLabel").textContent = t.langLabel;
+    $("#ttsLabel").textContent = t.ttsLabel;
+    $("#resetLabel").textContent = t.resetLabel;
+    $("#settingsTitle").textContent = t.settingsTitle;
+    $("#modeLabel").textContent = t.modeLabel;
+    $("#orderLabel").textContent = t.orderLabel;
+    $("#levelLabel").textContent = t.levelLabel;
+    $("#topicLabel").textContent = t.topicLabel;
+    $("#loadNote").textContent = t.loadNote_loading;
+    $("#totalLabel").textContent = t.totalLabel;
+    $("#correctLabel").textContent = t.correctLabel;
+    $("#streakLabel").textContent = t.streakLabel;
+    $("#seenLabel").textContent = t.seenLabel;
+    $("#favLabel").textContent = t.favLabel;
+    $("#challengeTitle").textContent = t.challengeTitle;
+    $("#challengeLevelLabel").textContent = t.challengeLevelLabel;
+    $("#challengeCountLabel").textContent = t.challengeCountLabel;
+    $("#startChallengeLabel").textContent = t.startChallengeLabel;
+    $("#challengeStatus").textContent = t.challengeReady;
+    $("#gameTitle").textContent = t.gameTitle;
+    $("#historyTitle").textContent = t.historyTitle;
+    $("#audioTitle").textContent = t.audioTitle;
+    $("#voiceLabel").textContent = t.voiceLabel;
+    $("#rateLabel").textContent = t.rateLabel;
+    $("#repeatLabel").textContent = t.repeatLabel;
+    $("#themeLabel").textContent = t.themeLabel;
+    $("#loadJsonLabel").textContent = t.loadJsonLabel;
+    renderModeSeg(); renderOrderSeg();
+  }
+
+  function applyTheme(){
+    document.body.classList.toggle("light", state.theme==="light");
+  }
+
+  function renderModeSeg(){
+    const t = I18N[state.lang].modes;
+    const wrap = $("#modeSeg"); wrap.innerHTML="";
+    t.forEach(m=>{
+      const b = document.createElement("button");
+      b.textContent=m; b.className="chip"; if(state.settings.mode===m) b.style.borderColor="var(--brand)";
+      b.onclick=()=>{state.settings.mode=m; persist("settings"); resetMixStage(); refreshFiltered(); goCurrent(state.index);};
+      wrap.appendChild(b);
+    });
+  }
+  function renderOrderSeg(){
+    const t = I18N[state.lang].orders;
+    const wrap = $("#orderSeg"); wrap.innerHTML="";
+    t.forEach(o=>{
+      const b = document.createElement("button");
+      b.textContent=o; b.className="chip"; if(state.settings.order===o) b.style.borderColor="var(--brand)";
+      b.onclick=()=>{state.settings.order=o; persist("settings"); buildOrder(); goCurrent(0);};
+      wrap.appendChild(b);
+    });
+  }
+
+  function persist(type){
+    if(type==="settings") store.set(KEYS.settings, state.settings);
+    if(type==="progress") store.set(KEYS.progress, state.progress);
+    if(type==="seen") store.set(KEYS.seen, state.seenMap);
+    if(type==="favs") store.set(KEYS.favs, Array.from(state.favs));
+    if(type==="history") store.set(KEYS.history, state.history.slice(-50));
+    if(type==="lang") store.set(KEYS.lang, state.lang);
+    if(type==="theme") store.set(KEYS.theme, state.theme);
+    if(type==="audio") store.set(KEYS.audio, state.audio);
+    updateStats();
+  }
+
+  function computeId(item){ return (item.en||"")+"__"+(item.ar||"") }
+
+  function validateItem(x){
+    if(!x || typeof x!=="object") return null;
+    if(!x.en || !x.ar) return null;
+    const y = {en:String(x.en), ar:String(x.ar), topic:(x.topic||"general"), level:(x.level||"A1"), tags:Array.isArray(x.tags)?x.tags:[]};
+    return y;
+  }
+
+  async function loadData(){
+    $("#loadNote").textContent = I18N[state.lang].loadNote_loading;
+    try{
+      const res = await fetch('./sentences.json');
+      if(!res.ok) throw new Error("fetch failed");
+      const arr = await res.json();
+      const valid = [];
+      for(const it of (Array.isArray(arr)?arr:[])){
+        const v = validateItem(it);
+        if(v) valid.push(v);
+      }
+      state.data = valid;
+      $("#loadCount").textContent = String(valid.length);
+      $("#loadNote").innerHTML = `<span class="ok">${I18N[state.lang].loadNote_ok}</span>`;
+      collectTopics(); refreshFiltered(); buildOrder(); goCurrent(0);
+    }catch(e){
+      $("#loadNote").innerHTML = `<span class="error">${I18N[state.lang].loadNote_fail}</span>`;
+      $("#loadCount").textContent="0";
+      collectTopics(); refreshFiltered(); buildOrder(); renderGameEmpty();
+    }
+  }
+
+  function loadFromFile(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const arr = JSON.parse(reader.result);
+        const valid = [];
+        for(const it of (Array.isArray(arr)?arr:[])){
+          const v = validateItem(it);
+          if(v) valid.push(v);
         }
-
-        function toggleSection(header) {
-            header.parentElement.classList.toggle('open');
+        const replace = confirm(I18N[state.lang].replace_merge_prompt);
+        if(replace){
+          state.data = valid;
+        }else{
+          const map = new Map(state.data.map(d=>[computeId(d), d]));
+          valid.forEach(v=>map.set(computeId(v), v));
+          state.data = Array.from(map.values());
         }
+        $("#loadCount").textContent = String(state.data.length);
+        collectTopics(); refreshFiltered(); buildOrder(); goCurrent(0);
+      }catch(err){
+        alert("Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
+  }
 
-        function toggleLang() {
-            lang = lang === 'ar' ? 'en' : 'ar';
-            document.documentElement.lang = lang;
-            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('lang-btn').innerText = lang === 'ar' ? 'English' : 'العربية';
-            
-            // تحديث النصوص
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                el.innerText = translations[lang][el.dataset.i18n];
-            });
-            updatePreview(); // لتحديث لغة العرض
+  function collectTopics(){
+    const set = new Set(["All"]);
+    state.data.forEach(d=>set.add(d.topic||"general"));
+    state.topics = Array.from(set);
+    const sel = $("#topicSel"); sel.innerHTML="";
+    for(const t of state.topics){ const o=document.createElement("option"); o.value=t; o.textContent=t; sel.appendChild(o); }
+    sel.value = state.settings.topic || "All";
+  }
+
+  function refreshFiltered(){
+    const level = state.settings.level;
+    const topic = state.settings.topic;
+    let list = state.data.slice();
+    if(level && level!=="All") list = list.filter(x=>x.level===level);
+    if(topic && topic!=="All") list = list.filter(x=>x.topic===topic);
+    state.filtered = list;
+    state.progress.total = list.length;
+    persist("progress");
+    updateStats();
+  }
+
+  function buildOrder(){
+    const order = state.settings.order;
+    const list = state.filtered.slice();
+    if(order==="Shuffle"){
+      for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}
+    }else if(order==="Least Seen"){
+      list.sort((a,b)=>{
+        const sa = state.seenMap[computeId(a)]||0;
+        const sb = state.seenMap[computeId(b)]||0;
+        if(sa!==sb) return sa-sb;
+        return 0;
+      });
+    }
+    state.filtered = list;
+  }
+
+  function goCurrent(idx){
+    state.index = Math.max(0, Math.min(idx, state.filtered.length-1));
+    state.current = state.filtered[state.index] || null;
+    if(state.current){ trackSeen(state.current); }
+    renderGame();
+    autoSpeakCurrent();
+  }
+
+  function trackSeen(item){
+    const id = computeId(item);
+    state.seenMap[id] = (state.seenMap[id]||0) + 1;
+    state.progress.seen = Object.values(state.seenMap).reduce((a,b)=>a+b,0);
+    persist("seen"); persist("progress");
+  }
+
+  function updateStats(){
+    $("#statTotal").textContent = String(state.progress.total||0);
+    $("#statCorrect").textContent = String(state.progress.correct||0);
+    $("#statStreak").textContent = String(state.progress.streak||0);
+    $("#statSeen").textContent = String(state.progress.seen||0);
+    $("#statFav").textContent = String(state.favs.size||0);
+    const p = state.challenge.active && state.challenge.total>0 ? Math.round(100*state.challenge.current/state.challenge.total) : 0;
+    $("#progressBar").style.width = p+"%";
+    $("#topProgressBar").style.width = p+"%";
+  }
+
+  function renderGame(){
+    const area = $("#gameArea"); area.innerHTML="";
+    if(!state.current){
+      renderGameEmpty();
+      return;
+    }
+    const mode = state.settings.mode;
+    if(state.challenge.active){
+      $("#challengeStatus").textContent = I18N[state.lang].challengeRunning + ` • ${state.challenge.current}/${state.challenge.total}`;
+    }
+    if(mode==="Study") renderStudy(area, state.current);
+    else if(mode==="MCQ") renderMCQ(area, state.current);
+    else if(mode==="Typing") renderTyping(area, state.current);
+    else if(mode==="Listen") renderListen(area, state.current);
+    else if(mode==="Mix") renderMix(area, state.current);
+  }
+
+  function renderGameEmpty(){
+    const area = $("#gameArea");
+    const p = document.createElement("div"); p.className="panel center fade-enter fade-enter-active";
+    p.innerHTML = `<div class="note">${I18N[state.lang].empty_data}</div>`;
+    area.appendChild(p);
+  }
+
+  function badgeRow(item){
+    return `
+      <div class="row">
+        <span class="pill">⭐ ${I18N[state.lang].level_badge}: ${item.level}</span>
+        <span class="pill">🏷️ ${I18N[state.lang].topic_badge}: ${item.topic}</span>
+        <span class="pill">👁️ ${I18N[state.lang].seen_badge}: ${state.seenMap[computeId(item)]||0}</span>
+      </div>
+    `;
+  }
+
+  function renderStudy(area, item){
+    const panel = document.createElement("div"); panel.className="panel fade-enter";
+    panel.innerHTML = `
+      <div class="row">
+        <span class="badge">EN</span>
+        <div class="space"></div>
+        <button class="icon" id="favBtn"><span>⭐</span><span>${I18N[state.lang].favorite}</span></button>
+        <button class="primary icon" id="nextBtn"><span>➡️</span><span>${I18N[state.lang].next}</span></button>
+      </div>
+      <h2 style="margin:.6rem 0 0">${escapeHtml(item.en)}</h2>
+      <div class="note" style="margin:.3rem 0 0">${I18N[state.lang].study_ar}</div>
+      <h3 style="margin:.2rem 0 0;color:#b8c4cf">${escapeHtml(item.ar)}</h3>
+      ${badgeRow(item)}
+    `;
+    area.appendChild(panel); requestAnimationFrame(()=>panel.classList.add("fade-enter-active"));
+    $("#favBtn").onclick=()=> toggleFav(item);
+    $("#nextBtn").onclick=()=> nextItem();
+  }
+
+  function gatherDistractors(correctItem, count){
+    const pool = state.filtered.filter(x=>computeId(x)!==computeId(correctItem));
+    const options = [];
+    const seenAr = new Set();
+    while(options.length<count && pool.length){
+      const idx = Math.floor(Math.random()*pool.length);
+      const cand = pool.splice(idx,1)[0];
+      if(!seenAr.has(cand.ar)){ seenAr.add(cand.ar); options.push(cand.ar); }
+    }
+    return options;
+  }
+
+  function renderMCQ(area, item){
+    const correct = item.ar;
+    const distractors = gatherDistractors(item, 3);
+    const opts = [correct, ...distractors].slice(0,4);
+    shuffleArray(opts);
+    const panel = document.createElement("div"); panel.className="panel fade-enter";
+    panel.innerHTML = `
+      <div class="row">
+        <span class="badge">EN</span>
+        <span class="space"></span><span class="chip">${I18N[state.lang].choose_correct}</span>
+      </div>
+      <h2 style="margin:.6rem 0">${escapeHtml(item.en)}</h2>
+      <div class="options" id="opts"></div>
+      ${badgeRow(item)}
+    `;
+    area.appendChild(panel); requestAnimationFrame(()=>panel.classList.add("fade-enter-active"));
+    const wrap = $("#opts");
+    const buttons=[];
+    opts.forEach(o=>{
+      const b = document.createElement("button"); b.className="ghost";
+      b.textContent = o;
+      b.onclick = ()=> {
+        playClick();
+        const ok = (o===correct);
+        if(ok){
+          b.classList.add("correct"); playCorrect();
+          recordAnswer(true);
+          setTimeout(()=> nextItem(), 450);
+        }else{
+          b.classList.add("wrong"); playWrong();
+          recordAnswer(false);
+          const correctBtn = buttons.find(x=>x.textContent===correct);
+          if(correctBtn) correctBtn.classList.add("correct");
+          buttons.forEach(x=>x.disabled=true);
+          setTimeout(()=> nextItem(), 850);
         }
+      };
+      wrap.appendChild(b); buttons.push(b);
+    });
+  }
 
-        // --- معالجة الصور ---
-        function handleImageUpload(input, type) {
-            const file = input.files[0];
-            if (!file) return;
-            
-            // تحذير للحجم
-            if(file.size > 500 * 1024) { alert('⚠️ الصورة كبيرة جداً، يفضل أقل من 500KB لسرعة التحميل'); }
+  function renderTyping(area, item){
+    const panel = document.createElement("div"); panel.className="panel fade-enter";
+    panel.innerHTML = `
+      <div class="row">
+        <span class="badge">AR</span><span class="chip">${I18N[state.lang].type_english}</span>
+        <span class="space"></span><button class="icon" id="favBtn"><span>⭐</span><span>${I18N[state.lang].favorite}</span></button>
+      </div>
+      <h3 style="margin:.4rem 0;color:#b8c4cf">${escapeHtml(item.ar)}</h3>
+      <input id="typeInput" type="text" placeholder="${I18N[state.lang].type_english}" />
+      <div class="row" style="margin-top:.6rem">
+        <button class="success icon" id="submitBtn"><span>✅</span><span>${I18N[state.lang].next}</span></button>
+      </div>
+      ${badgeRow(item)}
+    `;
+    area.appendChild(panel); requestAnimationFrame(()=>panel.classList.add("fade-enter-active"));
+    $("#favBtn").onclick=()=> toggleFav(item);
+    $("#submitBtn").onclick=()=>{
+      playClick();
+      const val = normalizeText($("#typeInput").value);
+      const target = normalizeText(item.en);
+      const ok = (val===target);
+      recordAnswer(ok);
+      const btn = $("#submitBtn");
+      btn.classList.remove("success"); btn.classList.add(ok?"correct":"wrong");
+      ok ? playCorrect() : playWrong();
+      setTimeout(()=> nextItem(), ok?450:850);
+    };
+  }
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                config.profile[type] = e.target.result;
-                document.getElementById(`${type}-status`).innerText = '✅ تم الرفع';
-                updatePreview();
-            };
-            reader.readAsDataURL(file);
+  function renderListen(area, item){
+    const correct = item.ar;
+    const distractors = gatherDistractors(item, 3);
+    const opts = [correct, ...distractors].slice(0,4);
+    shuffleArray(opts);
+    const panel = document.createElement("div"); panel.className="panel fade-enter";
+    panel.innerHTML = `
+      <div class="row">
+        <span class="badge">🔊</span><span class="chip">${I18N[state.lang].listen_instructions}</span>
+        <span class="space"></span>
+      </div>
+      <div class="options" id="opts"></div>
+      ${badgeRow(item)}
+    `;
+    area.appendChild(panel); requestAnimationFrame(()=>panel.classList.add("fade-enter-active"));
+    const wrap = $("#opts");
+    const buttons=[];
+    opts.forEach(o=>{
+      const b = document.createElement("button"); b.className="ghost";
+      b.textContent = o;
+      b.onclick = ()=> {
+        playClick();
+        const ok = (o===correct);
+        if(ok){
+          b.classList.add("correct"); playCorrect();
+          recordAnswer(true);
+          setTimeout(()=> nextItem(), 450);
+        }else{
+          b.classList.add("wrong"); playWrong();
+          recordAnswer(false);
+          const correctBtn = buttons.find(x=>x.textContent===correct);
+          if(correctBtn) correctBtn.classList.add("correct");
+          buttons.forEach(x=>x.disabled=true);
+          setTimeout(()=> nextItem(), 850);
         }
+      };
+      wrap.appendChild(b); buttons.push(b);
+    });
+  }
 
-        // --- إدارة الروابط ---
-        function renderLinksInputs() {
-            const container = document.getElementById('links-container');
-            container.innerHTML = '';
-            config.links.forEach((link, index) => {
-                const div = document.createElement('div');
-                div.className = 'link-item';
-                div.innerHTML = `
-                    <span class="handle">☰</span>
-                    <div style="flex:1">
-                        <input type="text" value="${link.title}" placeholder="العنوان" oninput="updateLink(${index}, 'title', this.value)">
-                        <input type="text" value="${link.url}" placeholder="الرابط" style="margin-top:5px" oninput="updateLink(${index}, 'url', this.value)">
-                    </div>
-                    <button class="btn-danger" onclick="removeLink(${index})">🗑️</button>
-                `;
-                container.appendChild(div);
-            });
-        }
+  const mixStageOrder = ["Study","MCQ","Typing","Listen"];
+  let mixStageIndex = 0;
+  function resetMixStage(){ mixStageIndex = 0; }
+  function renderMix(area, item){
+    const stage = mixStageOrder[mixStageIndex];
+    const head = document.createElement("div");
+    head.className="row"; head.innerHTML = `<span class="chip">Mix • ${stage}</span><span class="space"></span>`;
+    area.appendChild(head);
+    if(stage==="Study") renderStudy(area, item);
+    else if(stage==="MCQ") renderMCQ(area, item);
+    else if(stage==="Typing") renderTyping(area, item);
+    else if(stage==="Listen") renderListen(area, item);
+  }
 
-        function addLink() {
-            config.links.push({ title: 'رابط جديد', url: '' });
-            renderLinksInputs();
-            updatePreview();
-        }
+  function nextItem(){
+    if(state.settings.mode==="Mix"){
+      mixStageIndex++;
+      if(mixStageIndex < mixStageOrder.length){
+        renderGame();
+        autoSpeakCurrent();
+        return;
+      }
+      mixStageIndex = 0;
+    }
+    const nextIdx = state.index + 1;
+    if(state.challenge.active){
+      state.challenge.current++;
+      if(state.challenge.current >= state.challenge.total){
+        finishChallenge();
+        return;
+      }
+    }
+    goCurrent(nextIdx >= state.filtered.length ? 0 : nextIdx);
+  }
 
-        function removeLink(index) {
-            config.links.splice(index, 1);
-            renderLinksInputs();
-            updatePreview();
-        }
+  function recordAnswer(ok){
+    if(ok){
+      state.progress.correct++;
+      state.progress.streak++;
+      if(state.challenge.active) state.challenge.correct++;
+    }else{
+      state.progress.streak = 0;
+    }
+    persist("progress");
+  }
 
-        function updateLink(index, key, value) {
-            config.links[index][key] = value;
-            updatePreview(); // تحديث فوري
-        }
+  function toggleFav(item){
+    const id = computeId(item);
+    if(state.favs.has(id)) state.favs.delete(id); else state.favs.add(id);
+    persist("favs");
+    renderGame();
+  }
 
-        function updateConfigFromDOM() {
-            // يتم استدعاؤها بعد السحب والإفلات لترتيب المصفوفة
-            const items = document.querySelectorAll('.link-item');
-            const newLinks = [];
-            items.forEach(item => {
-                const title = item.querySelector('input[placeholder="العنوان"]').value;
-                const url = item.querySelector('input[placeholder="الرابط"]').value;
-                newLinks.push({ title, url });
-            });
-            config.links = newLinks;
-            updatePreview();
-        }
+  function normalizeText(s){
+    return String(s||"").trim().toLowerCase().replace(/\s+/g," ");
+  }
 
-        function updateConfig() {
-            config.profile.name = document.getElementById('p-name').value;
-            config.profile.bio = document.getElementById('p-bio').value;
-            config.design.template = document.getElementById('d-template').value;
-            config.design.theme = document.getElementById('d-theme').value;
-            config.design.customBg = document.getElementById('d-custom-bg').value;
-            updatePreview();
-        }
+  function shuffleArray(a){
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  }
 
-        // --- 3. نظام المعاينة والتوليد (Core Rendering) ---
-        
-        function generateFullPageHTML(data) {
-            // هذه الدالة تولد كود HTML الكامل للصفحة النهائية
-            
-            const { profile, links, design } = data;
-            
-            // تحديد الألوان بناءً على الثيم
-            const themes = {
-                light: { bg: '#ffffff', text: '#333', btnBg: '#f3f4f6', btnText: '#000' },
-                dark: { bg: '#111827', text: '#f9fafb', btnBg: '#1f2937', btnText: '#fff' },
-                ocean: { bg: 'linear-gradient(to bottom, #e0f7fa, #80deea)', text: '#006064', btnBg: '#ffffff', btnText: '#00838f' },
-                sunset: { bg: 'linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%)', text: '#4a001f', btnBg: 'rgba(255,255,255,0.8)', btnText: '#d63384' }
-            };
-            
-            let currentTheme = themes[design.theme];
-            // تجاوز الخلفية إذا تم اختيار لون مخصص مع الثيم الفاتح
-            if(design.theme === 'light' && design.customBg !== '#f3f4f6') {
-                currentTheme.bg = design.customBg;
-            }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+  }
 
-            // CSS القوالب
-            let templateCSS = '';
-            let layoutHTML = '';
+  function initVoice(){
+    const pick = (voices)=>{
+      state.voices = voices||[];
+      state.voice = state.voices.find(v=>/en/i.test(v.lang)) || state.voices[0] || null;
+      populateVoiceSel();
+    };
+    const ready = speechSynthesis.getVoices();
+    if(ready && ready.length) pick(ready);
+    speechSynthesis.onvoiceschanged = ()=> pick(speechSynthesis.getVoices());
+  }
 
-            const avatarHTML = profile.avatar ? `<img src="${profile.avatar}" class="avatar">` : `<div class="avatar" style="background:#ddd;display:flex;align-items:center;justify-content:center;font-size:30px;">👤</div>`;
-            const coverHTML = profile.cover ? `background-image: url('${profile.cover}');` : `background-color: var(--btn-bg);`;
+  function populateVoiceSel(){
+    const sel = $("#voiceSel"); sel.innerHTML="";
+    state.voices.forEach((v,i)=>{
+      const o = document.createElement("option");
+      o.value = i; o.textContent = `${v.name} (${v.lang})`;
+      if(state.voice && v.name===state.voice.name) o.selected = true;
+      sel.appendChild(o);
+    });
+  }
 
-            // بناء الروابط
-            const linksHTML = links.map(l => `
-                <a href="${l.url}" target="_blank" class="link-card">
-                    <span>${l.title}</span>
-                </a>
-            `).join('');
+  function speak(text){
+    if(!text) return;
+    const u = new SpeechSynthesisUtterance(text);
+    if(state.voice) u.voice = state.voice;
+    u.lang = (state.voice?.lang)||"en-US";
+    u.rate = Number(state.audio.rate)||1;
+    speechSynthesis.cancel();
+    const repeat = Math.max(1, Math.min(3, Number(state.audio.repeat)||1));
+    for(let i=0;i<repeat;i++){ speechSynthesis.speak(u); }
+  }
 
-            // --- منطق القوالب ---
-            
-            if (design.template === 'hero') {
-                // قالب البانر العريض
-                templateCSS = `
-                    .hero { height: 180px; width: 100%; background-size: cover; background-position: center; ${coverHTML} }
-                    .profile-container { margin-top: -60px; text-align: center; padding: 0 20px; }
-                    .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--bg); object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-                    .links-container { padding: 20px; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
-                    .link-card { background: var(--btn-bg); color: var(--btn-text); padding: 18px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; display: block; }
-                    .link-card:hover { transform: translateY(-3px); }
-                `;
-                layoutHTML = `
-                    <div class="hero"></div>
-                    <div class="profile-container">
-                        ${avatarHTML}
-                        <h1>${profile.name}</h1>
-                        <p>${profile.bio}</p>
-                    </div>
-                    <div class="links-container">${linksHTML}</div>
-                `;
+  function testTTS(){
+    const ok = !!state.voice;
+    const msg = ok ? I18N[state.lang].tts_ready : I18N[state.lang].tts_not_ready;
+    $("#challengeStatus").textContent = msg;
+  }
 
-            } else if (design.template === 'grid') {
-                // قالب الشبكة (Bento Grid)
-                templateCSS = `
-                    .container { max-width: 600px; margin: 40px auto; padding: 20px; text-align: center; }
-                    .avatar { width: 100px; height: 100px; border-radius: 25%; object-fit: cover; margin-bottom: 15px; }
-                    .links-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
-                    .link-card { background: var(--btn-bg); color: var(--btn-text); padding: 30px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; justify-content: center; text-align: center; aspect-ratio: 1/1; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.3s; }
-                    .link-card:hover { transform: scale(1.03); }
-                `;
-                layoutHTML = `
-                    <div class="container">
-                        ${avatarHTML}
-                        <h1>${profile.name}</h1>
-                        <p>${profile.bio}</p>
-                        <div class="links-container">${linksHTML}</div>
-                    </div>
-                `;
+  function autoSpeakCurrent(){
+    if(state.current) speak(state.current.en);
+  }
 
-            } else if (design.template === 'glass') {
-                // قالب زجاجي
-                templateCSS = `
-                    body { background: url('https://source.unsplash.com/random/1920x1080/?abstract,gradient') no-repeat center center fixed; background-size: cover; }
-                    .container { max-width: 500px; margin: 60px auto; padding: 40px 30px; text-align: center; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); color: #fff; }
-                    .avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.5); }
-                    .link-card { background: rgba(255, 255, 255, 0.25); color: #fff; margin-top: 15px; padding: 15px; border-radius: 12px; text-decoration: none; display: block; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
-                    .link-card:hover { background: rgba(255, 255, 255, 0.4); }
-                    h1, p { color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-                `;
-                // هنا نتجاهل ألوان الثيم لأن القالب له خلفية خاصة
-                currentTheme.bg = 'transparent'; 
-                layoutHTML = `
-                    <div class="container">
-                        ${avatarHTML}
-                        <h1>${profile.name}</h1>
-                        <p>${profile.bio}</p>
-                        <div class="links-container">${linksHTML}</div>
-                    </div>
-                `;
+  function startChallenge(){
+    const level = $("#challengeLevel").value;
+    const count = Math.max(1, Math.min(50, Number($("#challengeCount").value)||10));
+    let list = state.data.slice();
+    if(level!=="All") list = list.filter(x=>x.level===level);
+    shuffleArray(list);
+    state.challenge = { active:true, level, total: Math.min(count, list.length), current:0, correct:0, list: list.slice(0, count) };
+    state.filtered = state.challenge.list.slice();
+    buildOrder();
+    $("#challengeStatus").textContent = I18N[state.lang].challengeRunning;
+    goCurrent(0);
+  }
 
-            } else {
-                // الكلاسيكي
-                templateCSS = `
-                    .container { max-width: 500px; margin: 50px auto; padding: 20px; text-align: center; }
-                    .avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; }
-                    .links-container { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
-                    .link-card { background: var(--btn-bg); color: var(--btn-text); padding: 16px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 1px solid rgba(0,0,0,0.05); transition: 0.2s; display: block; }
-                    .link-card:hover { opacity: 0.9; }
-                `;
-                layoutHTML = `
-                    <div class="container">
-                        ${avatarHTML}
-                        <h1>${profile.name}</h1>
-                        <p>${profile.bio}</p>
-                        <div class="links-container">${linksHTML}</div>
-                    </div>
-                `;
-            }
+  function finishChallenge(){
+    state.challenge.active=false;
+    const pct = state.challenge.total ? Math.round(100*state.challenge.correct/state.challenge.total) : 0;
+    const entry = {
+      ts: Date.now(),
+      level: state.challenge.level,
+      total: state.challenge.total,
+      correct: state.challenge.correct,
+      pct
+    };
+    state.history.push(entry);
+    persist("history");
+    $("#challengeStatus").textContent = I18N[state.lang].challengeDone + ` • ${pct}%`;
+    refreshHistory();
+    refreshFiltered(); buildOrder(); goCurrent(state.index);
+  }
 
-            // تجميع الملف النهائي
-            return `
-<!DOCTYPE html>
-<html dir="auto">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${profile.name}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: ${currentTheme.bg};
-            --text: ${currentTheme.text};
-            --btn-bg: ${currentTheme.btnBg};
-            --btn-text: ${currentTheme.btnText};
-        }
-        body { margin: 0; font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-        h1 { margin: 10px 0 5px; font-size: 24px; }
-        p { margin: 0 0 20px; opacity: 0.8; font-size: 14px; }
-        ${templateCSS}
-    </style>
-</head>
-<body>
-    ${layoutHTML}
-</body>
-</html>`;
-        }
+  function refreshHistory(){
+    const list = $("#historyList"); list.innerHTML="";
+    const arr = state.history.slice(-50).reverse();
+    if(arr.length===0){
+      const div=document.createElement("div"); div.className="note"; div.textContent="—";
+      list.appendChild(div); return;
+    }
+    arr.forEach(h=>{
+      const d = new Date(h.ts);
+      const row = document.createElement("div"); row.className="row";
+      const pct = Math.round(h.pct);
+      row.innerHTML = `
+        <span class="chip">${d.toLocaleString()}</span>
+        <span class="chip">Lv: ${h.level}</span>
+        <span class="chip">${h.correct}/${h.total} • ${pct}%</span>
+      `;
+      list.appendChild(row);
+    });
+  }
 
-        function updatePreview() {
-            const html = generateFullPageHTML(config);
-            const frame = document.getElementById('preview-frame');
-            const doc = frame.contentDocument || frame.contentWindow.document;
-            doc.open();
-            doc.write(html);
-            doc.close();
-        }
+  function resetAll(){
+    if(!confirm(I18N[state.lang].reset_confirm)) return;
+    store.del(KEYS.settings); store.del(KEYS.progress); store.del(KEYS.seen);
+    store.del(KEYS.favs); store.del(KEYS.history); store.del(KEYS.lang); store.del(KEYS.theme); store.del(KEYS.audio);
+    state.lang="ar"; state.theme="dark"; state.settings={mode:"Study", order:"Sequential", level:"All", topic:"All"};
+    state.progress={total:0, correct:0, streak:0, seen:0};
+    state.seenMap={}; state.favs=new Set(); state.history=[]; state.challenge={active:false, level:"All", total:0, current:0, correct:0, list:[]};
+    applyLang(); applyTheme(); collectTopics(); refreshFiltered(); buildOrder(); goCurrent(0); refreshHistory();
+    $("#challengeStatus").textContent = I18N[state.lang].reset_done;
+  }
 
-        // --- 4. التصدير والمشاركة ---
+  // WebAudio feedback tones
+  let audioCtx = null;
+  function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+  function beep(freq=440, dur=0.12, type="sine", vol=0.15){
+    ensureAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.value = vol;
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start();
+    setTimeout(()=>{osc.stop();}, Math.round(dur*1000));
+  }
+  function playClick(){ beep(300,0.06,"triangle",0.12) }
+  function playCorrect(){ beep(880,0.12,"sine",0.18); setTimeout(()=>beep(1320,0.1,"sine",0.16),120) }
+  function playWrong(){ beep(180,0.12,"sawtooth",0.18); setTimeout(()=>beep(160,0.1,"sawtooth",0.16),110) }
 
-        function generateShareLink() {
-            // ضغط البيانات في الرابط
-            const json = JSON.stringify(config);
-            const compressed = LZString.compressToEncodedURIComponent(json);
-            const url = `${window.location.origin}${window.location.pathname}#data=${compressed}`;
-            
-            document.getElementById('share-url').value = url;
-            
-            // QR Code
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = '';
-            new QRCode(qrContainer, { text: url, width: 128, height: 128 });
-            
-            document.getElementById('share-modal').style.display = 'flex';
-        }
+  function initUI(){
+    applyLang();
+    applyTheme();
+    $("#langBtn").onclick=()=>{
+      state.lang = (state.lang==="ar")?"en":"ar";
+      persist("lang");
+      applyLang(); renderGame(); refreshHistory();
+    };
+    $("#themeBtn").onclick=()=>{
+      state.theme = (state.theme==="light")?"dark":"light";
+      persist("theme");
+      applyTheme();
+    };
+    $("#ttsTest").onclick=()=> testTTS();
+    $("#resetBtn").onclick=()=> resetAll();
+    $("#levelSel").onchange=(e)=>{ state.settings.level=e.target.value; persist("settings"); refreshFiltered(); buildOrder(); goCurrent(0); };
+    $("#topicSel").onchange=(e)=>{ state.settings.topic=e.target.value; persist("settings"); refreshFiltered(); buildOrder(); goCurrent(0); };
+    $("#challengeLevel").value = state.challenge.level||"All";
+    $("#challengeCount").value = state.challenge.total||10;
+    $("#startChallenge").onclick=()=> startChallenge();
+    $("#loadJsonBtn").onclick=()=> $("#jsonLoader").click();
+    $("#jsonLoader").onchange=(e)=>{ const f=e.target.files?.[0]; if(f) loadFromFile(f); e.target.value=""; };
+    $("#voiceSel").onchange=(e)=>{
+      const idx = Number(e.target.value);
+      const v = state.voices[idx];
+      if(v){ state.voice = v; }
+    };
+    $("#rateRange").oninput=(e)=>{ state.audio.rate = Number(e.target.value); persist("audio"); };
+    $("#repeatRange").oninput=(e)=>{ state.audio.repeat = Number(e.target.value); persist("audio"); };
+    refreshHistory();
+  }
 
-        function downloadHTML() {
-            const html = generateFullPageHTML(config);
-            const blob = new Blob([html], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'my-links.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function copyLink() {
-            const copyText = document.getElementById("share-url");
-            copyText.select();
-            document.execCommand("copy");
-            alert("تم نسخ الرابط! 🎉");
-        }
-
-        // --- 5. التشغيل الأولي (Router) ---
-        
-        window.onload = function() {
-            if (window.location.hash.startsWith('#data=')) {
-                // وضع العرض (المشاهد)
-                try {
-                    const compressed = window.location.hash.substring(6);
-                    const json = LZString.decompressFromEncodedURIComponent(compressed);
-                    const data = JSON.parse(json);
-                    
-                    document.body.classList.add('render-mode');
-                    document.body.innerHTML = generateFullPageHTML(data);
-                } catch (e) {
-                    console.error(e);
-                    alert("رابط غير صالح أو تالف");
-                    window.location.hash = "";
-                    location.reload();
-                }
-            } else {
-                // وضع التعديل (Editor)
-                initEditor();
-            }
-        };
-
-    </script>
+  window.addEventListener("DOMContentLoaded", ()=>{
+    initUI();
+    initVoice();
+    loadData();
+  });
+</script>
 </body>
 </html>
