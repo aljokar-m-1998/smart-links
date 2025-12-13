@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مُنشئ صفحة الروابط الذكية - Pro</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Cairo:wght@400;700;900&family=Tajawal:wght@400;700&family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Cairo:wght@400;700;900&family=Tajawal:wght@400;700&family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        /* --- الإعدادات العامة والتصميم (CSS) --- */
+        /* --- CSS خاص بالمحرر (Editor) فقط --- */
         :root {
             --editor-bg: #f7f8fa;
             --preview-bg: #eef0f5;
@@ -23,9 +23,7 @@
             --text-secondary: #555;
             --border-color: #e0e0e0;
             --accent-color: #007bff;
-            --accent-hover: #0056b3;
             --danger-color: #dc3545;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
             --border-radius: 12px;
         }
 
@@ -36,7 +34,7 @@
             color: var(--text-primary);
             height: 100vh;
             overflow: hidden;
-            display: flex;
+            display: flex; /* يُظهر المحرر فقط */
             transition: direction 0.3s;
         }
         body.en-mode { direction: ltr; font-family: 'Poppins', sans-serif; }
@@ -55,88 +53,56 @@
             box-sizing: border-box;
         }
 
-        .editor-section {
-            background: var(--editor-bg);
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-        
-        .editor-section summary {
-            font-weight: 700; padding: 15px; cursor: pointer; list-style: none;
-            display: flex; justify-content: space-between; align-items: center; background: #fff;
-        }
-        
+        .editor-section { background: var(--editor-bg); border-radius: var(--border-radius); margin-bottom: 20px; border: 1px solid var(--border-color); overflow: hidden; }
+        .editor-section summary { font-weight: 700; padding: 15px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background: #fff; }
         .form-content { padding: 15px; border-top: 1px solid var(--border-color); }
-        
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-secondary); }
+        input[type="text"], input[type="url"], textarea, select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; box-sizing: border-box; transition: 0.2s; font-family: inherit; }
         
-        input[type="text"], input[type="url"], textarea, select {
-            width: 100%; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; background: #fff; box-sizing: border-box; transition: 0.2s;
-            font-family: inherit;
-        }
-        
-        .btn {
-            padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer;
-            font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        .btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background-color: var(--accent-color); color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
         .btn-danger { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);}
         .btn-success { background-color: #28a745; color: white; }
         .btn-full { width: 100%; }
 
-        #links-list .link-item {
-            background-color: #fff; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+        #links-list .link-item { background-color: #fff; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .drag-handle { cursor: grab; color: #aaa; font-size: 20px; padding: 0 5px; }
         .sortable-ghost { opacity: 0.4; background: #e0f0ff; }
 
-        #preview-panel {
-            flex-grow: 1; display: flex; justify-content: center; align-items: center; background-color: var(--preview-bg);
-            padding: 20px; height: 100%; overflow: hidden;
-        }
-        #preview-frame {
-            width: 375px; height: 812px; background-color: white; border-radius: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15); padding: 15px; box-sizing: border-box;
-            position: relative; border: 8px solid #333;
-        }
-        #preview-content {
-            width: 100%; height: 100%; background-color: #f0f0f0; border-radius: 30px;
-            overflow-y: auto; text-align: center; padding: 40px 15px; box-sizing: border-box;
-        }
+        #preview-panel { flex-grow: 1; display: flex; justify-content: center; align-items: center; background-color: var(--preview-bg); padding: 20px; height: 100%; overflow: hidden; }
+        #preview-frame { width: 375px; height: 812px; background-color: white; border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); padding: 15px; box-sizing: border-box; position: relative; border: 8px solid #333; }
+        #preview-content { width: 100%; height: 100%; background-color: #f0f0f0; border-radius: 30px; overflow-y: auto; text-align: center; padding: 40px 15px; box-sizing: border-box; }
         #preview-content::-webkit-scrollbar { display: none; }
         
-        #html-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        #html-modal-content { background: white; padding: 30px; border-radius: var(--border-radius); width: 90%; max-width: 700px; text-align: center; animation: slideUp 0.3s ease; }
+        /* مودال (Modal) الروابط والـ HTML */
+        #modal, #html-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        #modal-content, #html-modal-content { background: white; padding: 30px; border-radius: var(--border-radius); width: 90%; max-width: 500px; text-align: center; animation: slideUp 0.3s ease; }
         #html-modal-content textarea { direction: ltr; text-align: left; font-family: monospace; }
+        #qrcode-container { margin: 20px auto; width: 128px; height: 128px; }
 
+        /* حالة العرض النهائي (Render Mode) */
+        body.render-mode { 
+            display: block; /* يخفي المحرر */
+            height: auto; 
+            overflow: auto; 
+            background: #fff; 
+        }
+        body.render-mode #app-container { display: none; }
+        #render-container { display: none; }
+        body.render-mode #render-container { display: block; }
+
+        /* Toast */
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; box-shadow: 0 4px 12px rgba(0,40,80,0.2); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-        body.render-mode { display: block; height: auto; overflow: auto; background: #fff; }
-        body.render-mode #app-container { display: none; }
-        #render-container { display: none; }
-        body.render-mode #render-container { display: block; }
-        
-        @media (max-width: 900px) {
-            #app-container { flex-direction: column; }
-            #editor-panel { width: 100%; height: auto; border-left: none; border-right: none; }
-            #preview-panel { height: 100vh; position: sticky; top: 0; z-index: 10; border-top: 1px solid #ddd;}
-        }
-
     </style>
 </head>
 <body>
 
-    <div id="toast">تمت العملية بنجاح</div>
+    <div id="toast"></div>
 
     <div id="app-container">
         <div id="editor-panel">
@@ -159,28 +125,20 @@
                     </div>
                     <div class="form-group">
                         <label data-i18n="label-avatar">الصورة الرمزية</label>
-                        
                         <input type="url" id="profile-avatar-url" data-i18n-placeholder="placeholder-avatar-url" placeholder="أو رابط الصورة المباشر (لتقصير الرابط)">
-                        
                         <p style="text-align: center; margin: 5px 0; font-size: 12px; color: #888;" data-i18n="text-or">--- أو ---</p>
-                        
                         <div class="file-upload-wrapper">
                             <div class="file-upload-btn" id="upload-btn-text" data-i18n="btn-upload-file">اختر صورة من جهازك 📁 (قد يطيل الرابط)</div>
-                            <input type="file" id="profile-avatar-upload" accept="image/*">
+                            <input type="file" id="profile-avatar-upload" accept="image/*" style="opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer;">
                         </div>
-                        
                         <button id="delete-avatar-btn" class="btn btn-danger btn-full" style="margin-top: 10px; display:none;">
                             🗑️ <span data-i18n="btn-delete-avatar">حذف الصورة الرمزية</span>
                         </button>
                     </div>
 
                     <div class="checkbox-group">
-                        <label>
-                            <input type="checkbox" id="hide-name-check"> <span data-i18n="check-hide-name">إخفاء الاسم</span>
-                        </label>
-                        <label>
-                            <input type="checkbox" id="hide-bio-check"> <span data-i18n="check-hide-bio">إخفاء النبذة</span>
-                        </label>
+                        <label> <input type="checkbox" id="hide-name-check"> <span data-i18n="check-hide-name">إخفاء الاسم</span> </label>
+                        <label> <input type="checkbox" id="hide-bio-check"> <span data-i18n="check-hide-bio">إخفاء النبذة</span> </label>
                     </div>
                 </div>
             </details>
@@ -218,7 +176,7 @@
                     </div>
                     <div class="form-group">
                         <label data-i18n="label-colors">تخصيص الألوان</label>
-                        <div class="color-picker-group">
+                        <div class="color-picker-group" style="display: flex; justify-content: space-between; gap: 10px;">
                             <input type="color" id="bg-color" data-i18n-title="title-bg-color" title="الخلفية">
                             <input type="color" id="link-bg-color" data-i18n-title="title-link-bg-color" title="خلفية الزر">
                             <input type="color" id="link-text-color" data-i18n-title="title-link-text-color" title="نص الزر">
@@ -253,7 +211,7 @@
         <div id="preview-panel">
             <div id="preview-frame">
                 <div id="preview-content">
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -288,7 +246,7 @@
 
     <script>
         
-        // --- 1. الأيقونات والخطوط والثيمات (مُصحَّحة) ---
+        // --- 1. الثوابت والأيقونات (Constants & SVGs) ---
         
         const themes = {
             'light': { bg: '#f7f8fa', lBg: '#ffffff', lTxt: '#1a1a1a', txt: '#1a1a1a', font: 'Cairo' },
@@ -300,45 +258,16 @@
             'elegant': { bg: '#000000', lBg: '#D4AF37', lTxt: '#000000', txt: '#D4AF37', font: 'Poppins' }
         };
 
-        // تم التأكد من أن جميع الأيقونات تستخدم stroke="currentColor" أو fill="currentColor" بشكل صحيح
+        // الأيقونات بصيغة SVG (يجب أن تعمل مع fill="currentColor" أو stroke="currentColor")
         const svgs = {
             twitter: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2 1.3-1.4 1.2-3.3.4-5.1-1.3-3.7-5.8-5.7-9.4-4.5 1.1 2 2 4.4 2.8 6.9 1.1 3.5.5 7.4-1.4 10.3 3.6 1.4 7.4.4 10-2 .6-.6 1.1-1.2 1.5-1.9.9.5 2 1 3.2 1.4C17.6 19.3 20 18 22 17"/></svg>',
             instagram: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
             facebook: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z"/></svg>',
             linkedin: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 8a6 6 0 0 0-6 6v7h-4v-7a6 6 0 0 0-6-6 6 6 0 0 0 6 6v7h4v-7a6 6 0 0 0 6-6zM4 2h4v4H4z"/></svg>',
-            // تم تصحيح الـ SVG الخاص بالواتساب ليعمل بشكل سليم
-            whatsapp: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.87 14.896c-.3-.15-.88-.43-1.02-.48a1 1 0 0 1-.58-.33c-.2-.23-.74-.89-.98-1.07a.999.999 0 0 1-.37-.58c-.1-.28 0-.58.17-.85s.58-.85.83-1.09c.25-.24.49-.3.68-.3s.4-.04.61.42c.2.46.39 1.09.43 1.19s.08.2.03.42c-.05.2-.26.24-.51.48s-.54.49-.75.72c-.2.23-.42.45-.64.67-.17.16-.35.33-.52.48a.999.999 0 0 0-.25.59c.02.19.14.3.29.45.15.15.36.35.54.51.18.17.37.33.58.49.23.18.47.36.71.55.24.19.49.38.75.56.26.18.52.36.78.53.25.17.51.34.77.5.25.17.51.32.77.47.26.15.52.3.78.44.25.14.5.27.75.39.25.12.5.24.75.36.25.12.49.23.74.34.25.1.49.19.74.28.25.09.49.17.74.25.25.08.49.16.74.24.25.07.49.14.74.2c.25.07.49.13.74.19.24.06.49.11.74.16.24.05.49.09.74.14.24.05.49.09.74.12.24.03.49.06.74.09.24.03.49.05.74.07.24.02.49.03.74.04.24.01.49.01.74.02.24 0 .49 0 .74 0h.22c.55 0 1-.45 1-1v-.22c0-.55-.45-1-1-1H12.7c-.52 0-.82-.24-1.14-.54-.32-.3-.68-.62-1.04-.98-.36-.36-.72-.72-1.04-1.04-.3-.32-.54-.62-.54-1.14z"/></svg>',
+            whatsapp: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.87 14.896c-.3-.15-.88-.43-1.02-.48a1 1 0 0 1-.58-.33c-.2-.23-.74-.89-.98-1.07a.999.999 0 0 1-.37-.58c-.1-.28 0-.58.17-.85s.58-.85.83-1.09c.25-.24.49-.3.68-.3s.4-.04.61.42c.2.46.39 1.09.43 1.19s.08.2.03.42c-.05.2-.26.24-.51.48s-.54.49-.75.72c-.2.23-.42.45-.64.67-.17.16-.35.33-.52.48a.999.999 0 0 0-.25.59c.02.19.14.3.29.45.15.15.36.35.54.51.18.17.37.33.58.49.23.18.47.36.71.55.24.19.49.38.75.56.26.18.52.36.78.53.25.17.51.34.77.5.25.17.51.32.77.47.26.15.52.3.78.44.25.14.5.27.75.39.25.12.49.23.74.34.25.1.49.19.74.28.25.09.49.17.74.25.25.08.49.16.74.24.25.07.49.14.74.2c.25.07.49.13.74.19.24.06.49.11.74.16.24.05.49.09.74.14.24.05.49.09.74.12.24.03.49.06.74.09.24.03.49.05.74.07.24.02.49.03.74.04.24.01.49.01.74.02.24 0 .49 0 .74 0h.22c.55 0 1-.45 1-1v-.22c0-.55-.45-1-1-1H12.7c-.52 0-.82-.24-1.14-.54-.32-.3-.68-.62-1.04-.98-.36-.36-.72-.72-1.04-1.04-.3-.32-.54-.62-.54-1.14z"/></svg>',
         };
         
-        // --- الدوال المساعدة (Helper Functions) ---
-
-        function escapeHtml(text) {
-            if (text === undefined || text === null) return "";
-            const str = String(text); 
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        function showToast(message) {
-            const x = document.getElementById("toast");
-            x.textContent = message;
-            x.className = "show";
-            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-        }
-        
-        function debounce(func, timeout = 300) {
-          let timer;
-          return (...args) => {
-            clearTimeout(timer);
-            timer = setTimeout(() => { func.apply(this, args); }, timeout);
-          };
-        }
-        
-        // --- وظيفة توليد كود الصفحة النهائية (Standalone) ---
+        // --- 2. وظيفة توليد كود الصفحة النهائية النظيفة (Standalone) ---
         function generateFinalHTML(data) {
             const safeName = escapeHtml(data.profile.name);
             const safeBio = escapeHtml(data.profile.bio);
@@ -352,19 +281,14 @@
                 if (val && svgs[key]) {
                      let href = val;
                     if (key === 'whatsapp') {
-                        // معالجة رابط واتساب
                         href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-                    } else if (key === 'twitter' || key === 'instagram' || key === 'facebook' || key === 'linkedin') {
-                        // إضافة http إذا لم يكن موجوداً
-                         if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
+                    } else if (key !== 'url' && !val.startsWith('http')) {
+                         href = `https://${key}.com/${val}`;
                     }
                     socialHTML += `<a href="${escapeHtml(href)}" target="_blank" class="social-icon">${svgs[key]}</a>`;
                 }
             }
             
-            const avatarDisplay = (theme === 'simple-pro' || data.profile.hideName) ? 'display: none;' : '';
-            const avatarMargin = (theme === 'simple-pro' || data.profile.hideName) ? '' : `<img src="${safeAvatar}" alt="${safeName}" class="avatar">`;
-
             let nameHTML = data.profile.hideName ? '' : `<h1 class="name">${safeName}</h1>`;
             let bioHTML = data.profile.hideBio ? '' : `<p class="bio">${safeBio}</p>`;
 
@@ -374,16 +298,19 @@
                  let borderStyle = '';
                  let extraClass = '';
                  
-                 // معالجة الأنماط المختلفة للزر
+                 const finalRadius = data.design.btnRadius === 'neubrutalism' ? '0' : data.design.btnRadius;
+                 
                  if (link.highlight) {
                      linkBg = data.design.textColor;
                      linkTxt = data.design.linkBgColor;
                      borderStyle += `border: 3px solid ${data.design.textColor};`;
                      extraClass += ' highlight-btn';
-                 } else if (data.design.btnRadius === 'neubrutalism') {
+                 } 
+                 
+                 if (data.design.btnRadius === 'neubrutalism') {
                         borderStyle += `border: 2px solid ${data.design.textColor}; box-shadow: 4px 4px 0 ${data.design.textColor}; border-radius: 0;`;
                  } else {
-                        borderStyle += `border-radius: ${data.design.btnRadius}; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none;`;
+                        borderStyle += `border-radius: ${finalRadius}; border: none;`;
                  }
                 
                 return `<a href="${escapeHtml(link.url)}" target="_blank" class="link-btn${extraClass}" style="background-color:${linkBg}; color:${linkTxt}; ${borderStyle}">${escapeHtml(link.title)}</a>`;
@@ -398,12 +325,37 @@
                         filter: brightness(1.1);
                         box-shadow: 0 8px 15px rgba(0,0,0,0.2) !important;
                     }
+                    .social-icon { transition: transform 0.3s; }
                     .social-icon:hover {
                         transform: scale(1.3) rotate(5deg);
                     }
                 `;
             }
             
+            // إضافة كود JavaScript لفك ضغط البيانات في حالة فتح الصفحة بالرابط المشفر
+            const dynamicScript = `
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hash && window.location.hash.startsWith('#data=')) {
+            const encodedData = window.location.hash.substring(6);
+            let decompressedData = LZString.decompressFromEncodedURIComponent(encodedData);
+            if (decompressedData) {
+                try {
+                    const data = JSON.parse(decompressedData);
+                    document.title = data.profile.name + ' | Links';
+                    // إعادة توجيه المستخدم لصفحة نظيفة (هذه الوظيفة غير متاحة هنا، لذلك نحتاج طريقة لعرض المحتوى مباشرة)
+                    // في حالة التنزيل HTML، هذا الكود لن يكون له تأثير لأن الهاش غير موجود
+                } catch (e) {
+                    console.error("Failed to parse data:", e);
+                }
+            }
+        }
+    });
+</script>
+`;
+            
+            // نستخدم قالب HTML بسيط ونظيف
             return `<!DOCTYPE html>
 <html lang="${lang}" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
 <head>
@@ -414,12 +366,11 @@
 <style>
     body { font-family: '${fontName}', sans-serif; margin: 0; padding: 40px 20px; min-height: 100vh; background: ${data.design.bgColor}; color: ${data.design.textColor}; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
     .container { width: 100%; max-width: 600px; text-align: center; }
-    .avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 15px; ${avatarDisplay} }
+    .avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 15px; }
     .name { font-size: 26px; font-weight: 900; margin: 0 0 10px; }
     .bio { font-size: 16px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6; }
     .socials { display: flex; justify-content: center; gap: 18px; margin-bottom: 30px; color: inherit; }
     .social-icon { color: inherit; transition: transform 0.3s ease; display: inline-block; }
-    /* تأكدنا هنا من عمل الأيقونات بشكل صحيح */
     .social-icon svg { width: 24px; height: 24px; vertical-align: middle; }
     .social-icon:hover { transform: scale(1.15); }
     .link-btn { display: block; width: 100%; padding: 18px; margin-bottom: 15px; text-decoration: none; font-weight: 700; font-size: 18px; box-sizing: border-box; transition: filter 0.3s; }
@@ -429,7 +380,7 @@
 </head>
 <body>
     <div class="container">
-        ${avatarMargin}
+        ${data.profile.hideAvatar ? '' : `<img src="${safeAvatar}" alt="${safeName}" class="avatar">`}
         ${nameHTML}
         ${bioHTML}
         <div class="socials">${socialHTML}</div>
@@ -439,48 +390,79 @@
 </html>`;
         }
 
-    document.addEventListener('DOMContentLoaded', () => {
-
-        // --- 2. التحقق من الرابط وتصحيح مشكلة فك الضغط ---
-        if (window.location.hash && window.location.hash.startsWith('#data=')) {
+        
+        // --- 3. وظيفة عرض صفحة الروابط المشفرة (خاصة برابط الهاش) ---
+        function renderEncodedPage(encodedData) {
             try {
-                const encodedData = window.location.hash.substring(6);
-                
-                // حاول فك الضغط (قد يكون هناك بيانات تالفة من محاولات سابقة)
-                let decompressedData;
-                try {
-                    decompressedData = LZString.decompressFromEncodedURIComponent(encodedData);
-                } catch (e) {
-                    console.error("LZString Decompression Failed:", e);
-                    throw new Error("Failed to decompress data.");
-                }
-
+                // استخدام LZString لفك الضغط
+                const decompressedData = LZString.decompressFromEncodedURIComponent(encodedData);
                 if (!decompressedData) throw new Error("Decompressed data is empty.");
 
-                const decodedData = JSON.parse(decompressedData);
+                const data = JSON.parse(decompressedData);
                 
+                // تغيير وضع العرض إلى وضع الصفحة النهائية
                 document.body.classList.add('render-mode');
-                document.getElementById('render-container').innerHTML = generateFinalHTML(decodedData);
-                document.title = `${escapeHtml(decodedData.profile.name)} | صفحة الروابط`;
+                
+                // توليد وإدراج كود HTML النظيف
+                document.getElementById('render-container').innerHTML = generateFinalHTML(data);
+                document.title = `${escapeHtml(data.profile.name)} | Links`;
             } catch (error) {
                 console.error("Data loading failed. Reverting to editor.", error);
                 
-                // إذا فشل التحميل، لا تحذف الهاش فوراً، بل حاول البدء كالمعتاد
-                initializeApp();
+                // في حالة فشل فك الضغط، نظهر رسالة خطأ ونبدأ المحرر
+                if (!window.editorInitialized) {
+                     initializeApp();
+                }
+                showToast(translations[config.lang || 'ar']['toast-data-error'] || "حدث خطأ في تحميل بيانات الصفحة. يرجى مراجعة الرابط.");
                 
-                // عرض رسالة خطأ للمستخدم
-                const t = translations[config.lang || 'ar'];
-                showToast(t['toast-data-error'] || "حدث خطأ في تحميل الصفحة. قد تكون البيانات تالفة.");
+                // إزالة فئة 'render-mode' إذا كانت موجودة لضمان ظهور المحرر
+                document.body.classList.remove('render-mode');
             }
+        }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- 4. نقطة الدخول الرئيسية ---
+        if (window.location.hash && window.location.hash.startsWith('#data=')) {
+            const encodedData = window.location.hash.substring(6);
+            renderEncodedPage(encodedData);
         } else {
+            // إذا لم يكن هناك بيانات مشفرة، ابدأ المحرر
             initializeApp();
         }
 
     });
         
-    // (بقية وظيفة initializeApp والدوال المساعدة تبقى كما هي)
+    // --- 5. الدوال المساعدة الأساسية للمحرر ---
+    
+    function escapeHtml(text) {
+        if (text === undefined || text === null) return "";
+        const str = String(text); 
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function showToast(message) {
+        const x = document.getElementById("toast");
+        x.textContent = message;
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+    
+    function debounce(func, timeout = 300) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+      };
+    }
+
+    // --- 6. وظيفة تشغيل المحرر (initializeApp) ---
     function initializeApp() {
-        const els = {
+        
+        window.editorInitialized = true; // وضع علامة أن المحرر يعمل
+        
+        const els = { /* ... (تعريف العناصر كما في الكود السابق) ... */
             name: document.getElementById('profile-name'),
             bio: document.getElementById('profile-bio'),
             hideName: document.getElementById('hide-name-check'),
@@ -547,9 +529,7 @@
             lang: 'ar' 
         };
         
-        loadConfig();
-        
-        const translations = {
+        const translations = { /* ... (تعريف الترجمات) ... */
             ar: { 
                 'editor-title': 'مُنشئ صفحة الروابط الذكية - Pro',
                 'editor-panel-h1': 'محرر الصفحة',
@@ -609,6 +589,13 @@
                 'toast-download': 'جاري تحميل الملف... 📥',
                 'save-status': 'تم الحفظ تلقائيًا (محليًا)',
                 'link-new-title': 'رابط جديد',
+                'alert-large-image': '⚠️ الصورة كبيرة جداً. يرجى اختيار صورة أقل من 500 كيلوبايت أو استخدم رابط خارجي.',
+                'toast-delete-avatar': "تم حذف الصورة الرمزية بنجاح.",
+                'alert-shorten-fail': '⚠️ الرابط طويل جداً. لن تتمكن خدمات التقصير المجانية من معالجته. تم فتح نافذة الرابط الطويل كبديل.',
+                'btn-shortening': "جاري التقصير...",
+                'alert-shorten-error': "عذراً، حدث خطأ في تقصير الرابط. تم فتح نافذة الرابط الطويل كبديل.",
+                'notice-qr-too-long': 'الرابط طويل جداً، لا يمكن توليد QR Code.',
+                'toast-data-error': "حدث خطأ في تحميل بيانات الصفحة. يرجى مراجعة الرابط.",
             },
             en: {
                 'editor-title': 'Smart Link Page Builder - Pro',
@@ -669,11 +656,39 @@
                 'toast-download': 'Downloading file... 📥',
                 'save-status': 'Saved automatically (locally)',
                 'link-new-title': 'New Link',
+                'alert-large-image': '⚠️ Image is too large. Please choose an image under 500KB or use an external URL.',
+                'toast-delete-avatar': "Avatar image deleted successfully.",
+                'alert-shorten-fail': '⚠️ Link is too long. Free shortening services cannot process it. The long link modal is opened instead.',
+                'btn-shortening': "Shortening...",
+                'alert-shorten-error': "Sorry, an error occurred while shortening the link. The long link modal is opened instead.",
+                'notice-qr-too-long': 'The link is too long, cannot generate QR Code.',
+                'toast-data-error': "Error loading page data. Please check the link.",
             }
         };
 
+
+        loadConfig();
         const saveConfigDebounced = debounce(saveConfig);
 
+        function loadConfig() {
+            try {
+                const savedConfig = localStorage.getItem('linkPageConfig');
+                if (savedConfig) {
+                    const loadedConfig = JSON.parse(savedConfig);
+                    config = { ...config, ...loadedConfig };
+                    
+                    if (!Array.isArray(config.links)) config.links = [ { title: DEFAULTS.linkTitle_ar, url: 'https://google.com', highlight: false } ];
+                    if (typeof config.socials !== 'object') config.socials = { twitter: '', instagram: '', facebook: '', linkedin: '', whatsapp: '' };
+                    
+                    // تأكد من أن اللغة موجودة لتعيين الترجمات
+                    if (!config.lang || !translations[config.lang]) config.lang = 'ar';
+                }
+            } catch (e) {
+                console.warn("Failed to load config from storage:", e);
+                localStorage.removeItem('linkPageConfig');
+            }
+        }
+        
         function saveConfig() {
             try {
                 localStorage.setItem('linkPageConfig', JSON.stringify(config));
@@ -684,23 +699,7 @@
             }
         }
         
-        function loadConfig() {
-            try {
-                const savedConfig = localStorage.getItem('linkPageConfig');
-                if (savedConfig) {
-                    const loadedConfig = JSON.parse(savedConfig);
-                    config = { ...config, ...loadedConfig };
-                    
-                    if (!Array.isArray(config.links)) config.links = [ { title: DEFAULTS.linkTitle_ar, url: 'https://google.com', highlight: false } ];
-                    if (typeof config.socials !== 'object') config.socials = { twitter: '', instagram: '', facebook: '', linkedin: '', whatsapp: '' };
-                }
-            } catch (e) {
-                console.warn("Failed to load config from storage:", e);
-                localStorage.removeItem('linkPageConfig');
-            }
-        }
-
-        function setLanguage(lang) {
+        function setLanguage(lang) { /* ... (وظيفة الترجمة) ... */
             config.lang = lang;
             const t = translations[lang];
             
@@ -729,7 +728,7 @@
             saveConfig();
         }
 
-        function renderPreview() {
+        function renderPreview() { /* ... (وظيفة عرض المعاينة) ... */
             els.preview.style.background = config.design.bgColor;
             els.preview.style.color = config.design.textColor;
 
@@ -756,9 +755,10 @@
                     let href = val;
                     if (key === 'whatsapp') {
                         href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-                    } else if (key === 'twitter' || key === 'instagram' || key === 'facebook' || key === 'linkedin') {
-                         if (!val.startsWith('http')) href = `https://${key}.com/${val}`;
+                    } else if (key !== 'url' && !val.startsWith('http')) {
+                         href = `https://${key}.com/${val}`;
                     }
+                    // كود المعاينة لتجنب مشاكل التداخل
                     socialPreviewHTML += `<a href="${escapeHtml(href)}" target="_blank" style="color:inherit; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${svgs[key]}</a>`;
                 }
             }
@@ -771,13 +771,17 @@
                 let borderStyle = '';
                 let extraStyles = '';
                 
+                const finalRadius = config.design.btnRadius === 'neubrutalism' ? '0' : config.design.btnRadius;
+                
                 if (link.highlight) {
                     borderStyle += ` border: 3px solid ${config.design.textColor}; `;
                     extraStyles += ` background-color: ${config.design.textColor}; color: ${config.design.linkBgColor}; `;
-                } else if (config.design.btnRadius === 'neubrutalism') {
+                } 
+                
+                if (config.design.btnRadius === 'neubrutalism') {
                     borderStyle += `border: 2px solid ${config.design.textColor}; box-shadow: 4px 4px 0 ${config.design.textColor}; border-radius: 0;`;
                 } else {
-                    borderStyle += `border-radius: ${config.design.btnRadius}; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none;`;
+                    borderStyle += `border-radius: ${finalRadius}; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none;`;
                 }
                 
                 if (config.design.theme === 'motion-pro') {
@@ -805,7 +809,7 @@
             els.preview.innerHTML = html;
         }
 
-        function syncUI() {
+        function syncUI() { /* ... (وظيفة مزامنة الواجهة) ... */
             els.name.value = config.profile.name;
             els.bio.value = config.profile.bio;
             els.hideName.checked = config.profile.hideName;
@@ -842,7 +846,7 @@
             renderPreview();
         }
 
-        function renderLinksList() {
+        function renderLinksList() { /* ... (وظيفة عرض قائمة الروابط) ... */
             const t = translations[config.lang];
             els.linksList.innerHTML = '';
             config.links.forEach((link, idx) => {
@@ -867,8 +871,9 @@
             });
         }
 
-        // --- الاستماع للأحداث (Event Listeners) ---
+        // --- 7. الإجراءات (Actions) ---
         
+        // (جميع مستمعي الأحداث: Name, Bio, Avatar, Socials, Links, Design)
         [els.name, els.bio, els.hideName, els.hideBio].forEach(el => el.addEventListener('input', () => {
             config.profile.name = els.name.value;
             config.profile.bio = els.bio.value;
@@ -889,7 +894,7 @@
             const file = e.target.files[0];
             if (file) {
                 if (file.size > 500 * 1024) { 
-                    alert(translations[config.lang]['alert-large-image'] || '⚠️ الصورة كبيرة جداً. يرجى اختيار صورة أقل من 500 كيلوبايت أو استخدم رابط خارجي.');
+                    alert(translations[config.lang]['alert-large-image']);
                     e.target.value = '';
                     return;
                 }
@@ -907,7 +912,7 @@
             config.profile.avatar = DEFAULTS.avatar; 
             els.avatarUpload.value = ''; 
             syncUI(); 
-            showToast(translations[config.lang]['toast-delete-avatar'] || "تم حذف الصورة الرمزية بنجاح.");
+            showToast(translations[config.lang]['toast-delete-avatar']);
             saveConfig();
         });
 
@@ -1004,12 +1009,12 @@
             setLanguage(config.lang === 'ar' ? 'en' : 'ar');
         });
 
-        // --- الحفظ والتصدير ---
+        // --- 8. الحفظ والتصدير والتقصير ---
         
         function getLongUrl() {
             const jsonString = JSON.stringify(config);
             const compressed = LZString.compressToEncodedURIComponent(jsonString);
-            // يتم استخدام window.location.origin و window.location.pathname لضمان عمل الرابط في أي مسار ملف
+            // يستخدم pathname و origin لضمان أن الرابط يعمل في كل البيئات
             return `${window.location.origin}${window.location.pathname}#data=${compressed}`;
         }
 
@@ -1022,7 +1027,7 @@
             try {
                 new QRCode(els.modal.qr, { text: url, width: 128, height: 128, correctLevel : QRCode.CorrectLevel.H });
             } catch (e) {
-                 els.modal.qr.innerHTML = `<p style="color:red; font-weight:bold;">${translations[config.lang]['notice-qr-too-long'] || 'الرابط طويل جداً، لا يمكن توليد QR Code.'}</p>`;
+                 els.modal.qr.innerHTML = `<p style="color:red; font-weight:bold;">${translations[config.lang]['notice-qr-too-long']}</p>`;
             }
 
             els.modal.self.style.display = 'flex';
@@ -1033,16 +1038,17 @@
             const t = translations[config.lang];
 
             if (longUrl.length > 2000) {
-                alert(t['alert-shorten-fail'] || '⚠️ الرابط طويل جداً. لن تتمكن خدمات التقصير المجانية من معالجته. تم فتح نافذة الرابط الطويل كبديل.');
+                alert(t['alert-shorten-fail']);
                 els.generate.click(); 
                 return;
             }
 
             const originalText = els.shorten.querySelector('span').textContent;
-            els.shorten.querySelector('span').textContent = t['btn-shortening'] || "جاري التقصير...";
+            els.shorten.querySelector('span').textContent = t['btn-shortening'];
             els.shorten.disabled = true;
 
             try {
+                // استخدام TinyURL لتقصير الرابط
                 const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
                 
                 if (response.ok) {
@@ -1055,11 +1061,11 @@
                     els.modal.self.style.display = 'flex';
                     showToast(t['toast-shorten-success']);
                 } else {
-                    throw new Error('فشل الاتصال بالخدمة');
+                    throw new Error('فشل الاتصال بخدمة التقصير');
                 }
             } catch (error) {
                 console.error(error);
-                alert(t['alert-shorten-error'] || "عذراً، حدث خطأ في تقصير الرابط. تم فتح نافذة الرابط الطويل كبديل.");
+                alert(t['alert-shorten-error']);
                 els.generate.click(); 
             } finally {
                 els.shorten.querySelector('span').textContent = originalText;
@@ -1085,7 +1091,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `index-${Date.now()}.html`;
+            a.download = `linkpage-${config.profile.name.replace(/\s/g, '-') || 'page'}.html`;
             a.click();
             URL.revokeObjectURL(url);
             showToast(translations[config.lang]['toast-download']);
